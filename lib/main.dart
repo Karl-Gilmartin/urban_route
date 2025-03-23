@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intercom_flutter/intercom_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'components/bottom_nav_bar.dart';
+import 'pages/report_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,10 +23,22 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,8 +66,21 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Intercom example app'),
         ),
-        body: const Center(
-          child: Text('Tap the Intercom button in the bottom right to open the messenger'),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: const [
+            Center(
+              child: Text('Home Page'),
+            ),
+            ReportPage(),
+            Center(
+              child: Text('Profile Page'),
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomNavBar(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
