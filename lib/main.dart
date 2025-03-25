@@ -3,6 +3,7 @@ import 'package:intercom_flutter/intercom_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'components/bottom_nav_bar.dart';
 import 'pages/report_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,10 +89,14 @@ class _MyAppState extends State<MyApp> {
           },
           backgroundColor: const Color(0xFF1F8DED), // Intercom blue color
           shape: const CircleBorder(),
-          child: Image.asset(
-            'assets/intercom_logo.png',
+          child: SvgPicture.asset(
+            'assets/messenger.svg',
             width: 33,
             height: 33,
+            colorFilter: const ColorFilter.mode(
+              Colors.white,
+              BlendMode.srcIn,
+            ),
           ),
         ),
       ),

@@ -38,6 +38,7 @@ dependencies:
   intercom_flutter: ^9.2.7
   flutter_svg: ^2.0.9
   flutter_dotenv: ^5.1.0
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:
