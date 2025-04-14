@@ -30,6 +30,10 @@
 	<string>We need access to your photo library to upload images</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to upload images</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open to get your current location for reports.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background to get your current location for reports.</string>
 
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
