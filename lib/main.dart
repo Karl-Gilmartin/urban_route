@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intercom_flutter/intercom_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'components/bottom_nav_bar.dart';
 import 'pages/report_page.dart';
+import 'pages/auth_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 void main() async {
@@ -10,6 +12,12 @@ void main() async {
 
   // Load environment variables
   await dotenv.load(fileName: ".env");
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
 
   // Initialize Intercom with environment variables
   await Intercom.instance.initialize(
@@ -33,6 +41,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
+  final _supabase = Supabase.instance.client;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -59,69 +68,73 @@ class _MyAppState extends State<MyApp> {
           backgroundColor: Color(0xFF1F8DED),
         ),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Urban Route'),
-        ),
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: const [
-            HomePage(),
-            ReportPage(),
-            ProfilePage(),
-          ],
-        ),
-        bottomNavigationBar: BottomNavBar(
-          selectedIndex: _selectedIndex,
-          onItemTapped: _onItemTapped,
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Intercom.instance.displayMessenger();
-          },
-          shape: const CircleBorder(),
-          child: SvgPicture.asset(
-            'assets/messenger.svg',
-            width: 33,
-            height: 33,
-            colorFilter: const ColorFilter.mode(
-              Colors.white,
-              BlendMode.srcIn,
-            ),
-          ),
-        ),
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const AuthPage(),
+        '/home': (context) => HomePage(selectedIndex: _selectedIndex, onItemTapped: _onItemTapped),
+      },
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final int selectedIndex;
+  final Function(int) onItemTapped;
+
+  const HomePage({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.map,
-            size: 80,
-            color: Color(0xFF1F8DED),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Welcome to Urban Route',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Your urban exploration companion',
-            style: TextStyle(fontSize: 16),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Urban Route'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await Supabase.instance.client.auth.signOut();
+              if (context.mounted) {
+                Navigator.of(context).pushReplacementNamed('/');
+              }
+            },
           ),
         ],
       ),
-    );
+      body: IndexedStack(
+        index: selectedIndex,
+        children: const [
+          Center(
+            child: Text('Home Page'),
+          ),
+          ReportPage(),
+          Center(
+            child: Text('Profile Page'),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: selectedIndex,
+        onItemTapped: onItemTapped,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Intercom.instance.displayMessenger();
+        },
+        shape: const CircleBorder(),
+        child: SvgPicture.asset(
+          'assets/messenger.svg',
+          width: 33,
+          height: 33,
+          colorFilter: const ColorFilter.mode(
+            Colors.white,
+            BlendMode.srcIn,
+          ),
+        ),
+      )    );
   }
 }
 
