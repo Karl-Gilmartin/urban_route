@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 
@@ -16,55 +17,20 @@ class _ReportPageState extends State<ReportPage> {
   bool _isLoading = false;
   bool _useCurrentLocation = false;
   bool _useAudioInput = false;
-  String _locationText = 'Location not available';
-  bool _isLoadingLocation = false;
-
-  Future<void> _getCurrentLocation() async {
-    setState(() {
-      _isLoadingLocation = true;
-    });
-
-    try {
-      // Check location permissions
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() {
-            _locationText = 'Location permission denied';
-            _isLoadingLocation = false;
-          });
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        setState(() {
-          _locationText = 'Location permissions are permanently denied';
-          _isLoadingLocation = false;
-        });
-        return;
-      }
-
-      // Get current position
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      setState(() {
-        _locationText = 'Latitude: ${position.latitude}, Longitude: ${position.longitude}';
-        _isLoadingLocation = false;
-      });
-    } catch (e) {
-      setState(() {
-        _locationText = 'Error getting location: $e';
-        _isLoadingLocation = false;
-      });
-    }
-  }
+  bool _isPublic = false;
+  int? _latitude;
+  int? _longitude;
 
   Future<void> _makeHttpRequest() async {
     final inputText = _reportController.text.trim();
+    final currentUser = Supabase.instance.client.auth.currentUser;
+
+    if (currentUser == null) {
+      setState(() {
+        _responseText = 'Please sign in to submit a report.';
+      });
+      return;
+    }
 
     if (inputText.isEmpty) {
       setState(() {
@@ -79,34 +45,69 @@ class _ReportPageState extends State<ReportPage> {
     });
 
     try {
-      final response = await http.post(
+      // First, send to the emotion analysis server
+      final serverResponse = await http.post(
         Uri.parse('http://144.91.67.206:8000/predict'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"text": inputText}),
       );
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
-        final int prediction = decoded['prediction'];
-        final List<dynamic> probs = decoded['probabilities'][0];
-
-        const labels = ['Sadness', 'Joy', 'Love', 'Anger', 'Fear', 'Surprise'];
-        final predictedLabel = labels[prediction];
-
-        setState(() {
-          _responseText =
-              'Prediction: $predictedLabel\n\n' +
+      String emotionResponse = '';
+      if (serverResponse.statusCode == 200) {
+        try {
+          final decoded = jsonDecode(serverResponse.body);
+          print("About to pring the decoded values");
+          print(decoded);
+          final List<dynamic> probs = decoded['probabilities'][0];
+          const labels = ['Sadness', 'Joy', 'Love', 'Anger', 'Fear', 'Surprise'];
+          final predictedLabel = decoded['prediction'] as String;
+          emotionResponse = 'Emotion Analysis: $predictedLabel\n\n' +
               List.generate(
                 labels.length,
-                (i) => '${labels[i]}: ${probs[i].toStringAsFixed(3)}',
+                (i) => '${labels[i]}: ${(probs[i] as num).toStringAsFixed(3)}',
               ).join('\n');
-        });
-      } else {
-        setState(() {
-          _responseText = 'Error: ${response.statusCode}';
-        });
+        } catch (e) {
+          print('Error parsing emotion response: $e');
+          emotionResponse = 'Emotion Analysis: $e';
+        }
       }
-    } catch (e) {
+
+      // Prepare the report data with explicit typing
+      final reportData = {
+        'user_id': currentUser.id,
+        'report_date': DateTime.now().toIso8601String(),
+        'severity': -1,
+        'report_en': inputText,
+        'report': inputText,
+        'audio_url': null,
+        'longitude': _longitude != null ? _longitude as int : -1,
+        'latitude': _latitude != null ? _latitude as int : -1,
+        'status': -1,
+        'media_url': null,
+        'is_public': _isPublic,
+      };
+
+      print('Submitting report with data: $reportData'); // Debug print
+
+      // Then, save to Supabase
+      final response = await Supabase.instance.client
+          .from('reports')
+          .insert(reportData)
+          .select();
+
+      print('Supabase response: $response'); // Debug print
+
+      setState(() {
+        _responseText = 'Report submitted successfully!\n\n$emotionResponse';
+        // Clear the form after successful submission
+        _reportController.clear();
+        _latitude = null;
+        _longitude = null;
+        _useCurrentLocation = false;
+      });
+    } catch (e, stackTrace) {
+      print('Error submitting report: $e');
+      print('Stack trace: $stackTrace');
       setState(() {
         _responseText = 'Error: $e';
       });
@@ -126,6 +127,10 @@ class _ReportPageState extends State<ReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Report'),
+        backgroundColor: const Color(0xFF1F8DED),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -145,51 +150,94 @@ class _ReportPageState extends State<ReportPage> {
               children: [
                 Switch(
                   value: _useCurrentLocation,
-                  onChanged: (value) {
-                    setState(() {
-                      _useCurrentLocation = value;
-                      if (value) {
-                        _getCurrentLocation();
+                  onChanged: (value) async {
+                    setState(() => _useCurrentLocation = value);
+                    if (value) {
+                      try {
+                        final position = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.high,
+                        );
+                        setState(() {
+                          // Convert to integers by multiplying by 1e6 and rounding
+                          _latitude = (position.latitude * 1e6).round();
+                          _longitude = (position.longitude * 1e6).round();
+                        });
+                      } catch (e) {
+                        print('Error getting location: $e');
                       }
-                    });
+                    } else {
+                      setState(() {
+                        _latitude = null;
+                        _longitude = null;
+                      });
+                    }
                   },
                 ),
                 const Text('My Current Location'),
               ],
             ),
-            if (_useCurrentLocation) ...[
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[400]!),
+            if (_useCurrentLocation && _latitude != null && _longitude != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'Location: ${(_latitude! / 1e6).toStringAsFixed(6)}, ${(_longitude! / 1e6).toStringAsFixed(6)}',
+                  style: const TextStyle(color: Color(0xFF1F8DED)),
                 ),
-                child: Row(
-                  children: [
-                    if (_isLoadingLocation)
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1F8DED)),
-                        ),
-                      )
-                    else
-                      const Icon(Icons.location_on, color: Color(0xFF1F8DED)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _locationText,
-                        style: const TextStyle(fontSize: 14),
+              ),
+            const SizedBox(height: 20),
+
+            // Public/Private Toggle
+            const Text('Report Visibility:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                ToggleButtons(
+                  isSelected: [!_isPublic, _isPublic],
+                  onPressed: (index) {
+                    setState(() {
+                      _isPublic = index == 1;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  selectedColor: Colors.white,
+                  fillColor: const Color(0xFF1F8DED),
+                  color: Colors.grey[700],
+                  constraints: const BoxConstraints(
+                    minWidth: 100,
+                    minHeight: 40,
+                  ),
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.lock_outline, size: 18),
+                          SizedBox(width: 8),
+                          Text('Private'),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.public_outlined, size: 18),
+                          SizedBox(width: 8),
+                          Text('Public'),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Tooltip(
+                  message: 'Public reports can be viewed by other users',
+                  child: Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
 
             // Input Method Selection

@@ -6,7 +6,7 @@ import 'components/bottom_nav_bar.dart';
 import 'pages/report_page.dart';
 import 'pages/auth_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'pages/map_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -114,6 +114,7 @@ class HomePage extends StatelessWidget {
           Center(
             child: Text('Profile Page'),
           ),
+          MapPage(),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
