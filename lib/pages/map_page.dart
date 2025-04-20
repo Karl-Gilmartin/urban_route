@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:math' as math;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../components/report_popup.dart';
 
 const String MAPBOX_STYLE = 'mapbox://styles/mapbox/light-v10';
 
@@ -118,27 +119,14 @@ class _MapPageState extends State<MapPage> {
   String _colorToHex(Color c) => '#${c.value.toRadixString(16).substring(2)}';
 
   void _showReportPopup(Map<String, dynamic> report) {
-    if (_selectedReport != null && _selectedReport!['id'] == report['id']) return;
-    setState(() => _selectedReport = report);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Report Details', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            Text('Report: ${report['report'] ?? 'No description'}'),
-            Text('Date: ${report['report_date'] ?? 'N/A'}'),
-            Text('Severity: ${(report['severity'] ?? 0).toStringAsFixed(2)}'),
-            Text('Location: ${report['latitude']}, ${report['longitude']}'),
-          ],
-        ),
+      builder: (context) => ReportPopup(
+        report: report,
+        onClose: () => Navigator.pop(context),
       ),
-    ).whenComplete(() => setState(() => _selectedReport = null));
+    );
   }
 
   void _moveCamera() {
