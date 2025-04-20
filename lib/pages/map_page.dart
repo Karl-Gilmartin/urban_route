@@ -1,4 +1,3 @@
-// Full Updated MapPage with Performance & UX Improvements
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:geolocator/geolocator.dart';
@@ -32,6 +31,7 @@ class _MapPageState extends State<MapPage> {
   String? _errorMessage;
 
   final GlobalKey _mapKey = GlobalKey();
+  final Map<String, Map<String, dynamic>> _symbolIdToReport = {};
 
   @override
   void initState() {
@@ -72,10 +72,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _fetchPublicReports() async {
-    setState(() {
-      _isLoadingReports = true;
-      _markersAdded = false;
-    });
     try {
       final response = await Supabase.instance.client
           .from('reports')
@@ -84,24 +80,24 @@ class _MapPageState extends State<MapPage> {
           .order('report_date', ascending: false);
       setState(() {
         _publicReports = List<Map<String, dynamic>>.from(response);
-        _isLoadingReports = false;
       });
-      if (_mapController != null) _addReportMarkers();
+      if (_mapController != null) {
+        _addReportMarkers();
+      }
     } catch (e) {
-      setState(() {
-        _isLoadingReports = false;
-      });
+      print('Error fetching reports: $e');
     }
   }
 
   void _addReportMarkers() {
-    if (_mapController == null || _markersAdded) return;
+    if (_mapController == null) return;
     _mapController!.clearSymbols();
     for (var report in _publicReports) {
       final lat = (report['latitude'] as num?)?.toDouble();
       final lng = (report['longitude'] as num?)?.toDouble();
       final sev = (report['severity'] as num?)?.toDouble() ?? 0.0;
       if (lat == null || lng == null) continue;
+      
       final color = _colorToHex(_getSeverityColor(sev));
       _mapController!.addSymbol(SymbolOptions(
         geometry: LatLng(lat, lng),
@@ -111,9 +107,10 @@ class _MapPageState extends State<MapPage> {
         textSize: 24.0,
         textColor: color,
         textOffset: const Offset(0, 0),
-      ));
+      )).then((symbol) {
+        _symbolIdToReport[symbol.id] = report;
+      });
     }
-    _markersAdded = true;
   }
 
   Color _getSeverityColor(double s) =>
@@ -172,7 +169,15 @@ class _MapPageState extends State<MapPage> {
           if (_isLoading)
             const Center(child: CircularProgressIndicator())
           else if (_errorMessage != null)
-            _buildErrorUI()
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  ElevatedButton(onPressed: _determinePosition, child: const Text('Retry')),
+                ],
+              ),
+            )
           else
             MapboxMap(
               key: _mapKey,
@@ -188,42 +193,17 @@ class _MapPageState extends State<MapPage> {
                 print('Map created, controller initialized');
                 setState(() {
                   _mapController = controller;
+                  _mapController!.onSymbolTapped.add((symbol) {
+                    final report = _symbolIdToReport[symbol.id];
+                    if (report != null) {
+                      _showReportPopup(report);
+                    }
+                  });
                 });
-                print('Map controller set in state');
               },
               onStyleLoadedCallback: () {
                 print('Map style loaded');
                 _addReportMarkers();
-              },
-              onMapClick: (point, coordinates) async {
-                print('Map clicked at: ${coordinates.latitude}, ${coordinates.longitude}');
-                
-                // Find the closest report to the clicked point
-                var closestReport = _publicReports.firstWhere(
-                  (report) {
-                    final lat = (report['latitude'] as num?)?.toDouble();
-                    final lng = (report['longitude'] as num?)?.toDouble();
-                    if (lat == null || lng == null) return false;
-                    
-                    final reportPoint = LatLng(lat, lng);
-                    final distance = _calculateDistance(
-                      coordinates.latitude,
-                      coordinates.longitude,
-                      reportPoint.latitude,
-                      reportPoint.longitude,
-                    );
-                    print('Distance to report: $distance meters');
-                    return distance < 2.0; // Within 2 meters (adjusted from 0.0001 degrees)
-                  },
-                  orElse: () => <String, dynamic>{},
-                );
-                
-                if (closestReport.isNotEmpty) {
-                  print('Found closest report, showing popup');
-                  _showReportPopup(closestReport);
-                } else {
-                  print('No report found near click point');
-                }
               },
               myLocationEnabled: true,
               myLocationTrackingMode: _isTracking 
@@ -280,17 +260,5 @@ class _MapPageState extends State<MapPage> {
 
   void _toggleTracking() {
     setState(() => _isTracking = !_isTracking);
-  }
-
-  Widget _buildErrorUI() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-          ElevatedButton(onPressed: _determinePosition, child: const Text('Retry')),
-        ],
-      ),
-    );
   }
 }
