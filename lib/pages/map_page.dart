@@ -152,32 +152,6 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  Widget _buildMapControls() => Positioned(
-        right: 16,
-        bottom: 100,
-        child: Column(
-          children: [
-            _controlButton(Icons.add, () => _adjustZoom(1), 'zoom_in'),
-            _controlButton(Icons.remove, () => _adjustZoom(-1), 'zoom_out'),
-            _controlButton(Icons.keyboard_arrow_up, () => _adjustTilt(15), 'tilt_up'),
-            _controlButton(Icons.keyboard_arrow_down, () => _adjustTilt(-15), 'tilt_down'),
-            _controlButton(Icons.rotate_left, () => _adjustBearing(-45), 'rotate_left'),
-            _controlButton(Icons.rotate_right, () => _adjustBearing(45), 'rotate_right'),
-            _controlButton(Icons.refresh, () => _fetchPublicReports(), 'refresh'),
-          ],
-        ),
-      );
-
-  Widget _controlButton(IconData icon, VoidCallback onPressed, String heroTag) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: FloatingActionButton(
-          heroTag: 'map_control_$heroTag',
-          mini: true,
-          onPressed: onPressed,
-          child: Icon(icon),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     final fallbackLocation = const LatLng(53.3498, -6.2603);
@@ -257,11 +231,6 @@ class _MapPageState extends State<MapPage> {
                   : MyLocationTrackingMode.None,
               myLocationRenderMode: MyLocationRenderMode.COMPASS,
             ),
-          if (!_isLoading && _errorMessage == null) ...[
-            _buildMapControls(),
-            _buildCompass(),
-            _buildLegend(),
-          ],
           if (_isLoadingReports)
             const Positioned(
               top: 16,
@@ -313,18 +282,6 @@ class _MapPageState extends State<MapPage> {
     setState(() => _isTracking = !_isTracking);
   }
 
-  void _adjustZoom(double delta) {
-    setState(() => _zoom += delta);
-  }
-
-  void _adjustTilt(double delta) {
-    setState(() => _tilt += delta);
-  }
-
-  void _adjustBearing(double delta) {
-    setState(() => _bearing += delta);
-  }
-
   Widget _buildErrorUI() {
     return Center(
       child: Column(
@@ -336,56 +293,4 @@ class _MapPageState extends State<MapPage> {
       ),
     );
   }
-
-  Widget _buildCompass() => Positioned(
-    right: 16,
-    top: 16,
-    child: FloatingActionButton(
-      heroTag: 'compass_fab',
-      mini: true,
-      onPressed: _moveCamera,
-      child: const Icon(Icons.compass_calibration),
-    ),
-  );
-
-  Widget _buildLegend() => Positioned(
-    left: 16,
-    top: 16,
-    child: FloatingActionButton(
-      heroTag: 'legend_fab',
-      mini: true,
-      onPressed: () => showModalBottomSheet(
-        context: context,
-        builder: (context) => _buildLegendContent(),
-      ),
-      child: const Icon(Icons.legend_toggle),
-    ),
-  );
-
-  Widget _buildLegendContent() => Container(
-    height: 200,
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Report Severity Legend', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        _legendItem(0.0, Colors.green, 'Low'),
-        _legendItem(0.3, Colors.orange, 'Medium'),
-        _legendItem(0.7, Colors.red, 'High'),
-      ],
-    ),
-  );
-
-  Widget _legendItem(double threshold, Color color, String label) => Row(
-    children: [
-      Container(
-        width: 20,
-        height: 20,
-        color: color,
-        margin: const EdgeInsets.only(right: 8),
-      ),
-      Text(label),
-    ],
-  );
 }
