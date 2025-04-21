@@ -9,6 +9,7 @@ import 'pages/signup_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'pages/map_page.dart';
 import 'package:flutter/services.dart';
+import 'pages/profile_settings_page.dart';
 
 class AppColors {
   static const white = Color(0xFFFFFFFF);
@@ -52,6 +53,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
   final _supabase = Supabase.instance.client;
+  final bool devMode = dotenv.env['DEV_MODE'] == 'true';
 
   void _onItemTapped(int index) {
     setState(() {
@@ -79,11 +81,12 @@ class _MyAppState extends State<MyApp> {
           backgroundColor: Color(0xFF1F8DED),
         ),
       ),
-      initialRoute: '/login',
+      initialRoute: devMode ? '/home' : '/login',
       routes: {
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         '/home': (context) => HomePage(selectedIndex: _selectedIndex, onItemTapped: _onItemTapped),
+        '/profile/settings': (context) => const ProfileSettingsPage(),
       },
     );
   }
@@ -109,9 +112,7 @@ class HomePage extends StatelessWidget {
             child: Text('Home Page'),
           ),
           ReportPage(),
-          Center(
-            child: Text('Profile Page'),
-          ),
+          ProfileSettingsPage(),
           MapPage(),
         ],
       ),
@@ -133,40 +134,6 @@ class HomePage extends StatelessWidget {
             BlendMode.srcIn,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircleAvatar(
-            radius: 50,
-            backgroundColor: Color(0xFF1F8DED),
-            child: Icon(
-              Icons.person,
-              size: 50,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'User Profile',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Your profile information will appear here',
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
       ),
     );
   }

@@ -42,16 +42,13 @@ dependencies:
   latlong2: ^0.9.1
   mapbox_gl: ^0.16.0
   mapbox_gl_dart: ^0.2.1
+  flutter_heat_map: ^1.2.1
+  flutter_map_heatmap: ^0.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  flutter_launcher_icons: ^0.11.0
   flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
@@ -69,6 +66,8 @@ flutter:
   assets:
     - assets/
     - .env
+    - assets/UrbanRoute_logo.png
+    - assets/messenger.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -95,3 +94,22 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/UrbanRoute_logo.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/UrbanRoute_logo.png"
+    background_color: "#003459"
+    theme_color: "#00A8E8"
+  windows:
+    generate: true
+    image_path: "assets/UrbanRoute_logo.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/UrbanRoute_logo.png"
