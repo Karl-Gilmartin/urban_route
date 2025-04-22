@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'pages/map_page.dart';
 import 'package:flutter/services.dart';
 import 'pages/profile_settings_page.dart';
+import 'pages/navigate.dart';
 
 class AppColors {
   static const white = Color(0xFFFFFFFF);
@@ -87,6 +88,7 @@ class _MyAppState extends State<MyApp> {
         '/signup': (context) => const SignupPage(),
         '/home': (context) => HomePage(selectedIndex: _selectedIndex, onItemTapped: _onItemTapped),
         '/profile/settings': (context) => const ProfileSettingsPage(),
+        '/navigate': (context) => const NavigatePage(),
       },
     );
   }
@@ -107,13 +109,14 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: IndexedStack(
         index: selectedIndex,
-        children: const [
-          Center(
+        children: [
+          const Center(
             child: Text('Home Page'),
           ),
-          ReportPage(),
-          ProfileSettingsPage(),
-          MapPage(),
+          const ReportPage(),
+          const ProfileSettingsPage(),
+          const MapPage(),
+          const NavigatePage(),
         ],
       ),
       bottomNavigationBar: BottomNavBar(

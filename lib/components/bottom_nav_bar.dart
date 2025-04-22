@@ -45,6 +45,11 @@ class BottomNavBar extends StatelessWidget {
           activeIcon: Icon(Icons.map),
           label: 'Map',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.navigate_next_outlined),
+          activeIcon: Icon(Icons.navigate_next),
+          label: 'Navigate',
+        ),
       ],
     );
   }
