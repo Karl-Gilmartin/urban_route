@@ -127,31 +127,23 @@ class _LoginPageState extends State<LoginPage> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.deepBlue,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
                             blurRadius: 10,
-                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: Column(
                         children: [
-                          const Icon(
-                            Icons.map,
-                            size: 60,
-                            color: AppColors.brightCyan,
+                          Image.asset(
+                            'assets/UrbanRoute_logo.png',
+                            height: 150,
+                            width: 150,
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            'Urban Route',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: AppColors.brightCyan,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ],
                       ),
                     ),
