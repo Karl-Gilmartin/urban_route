@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:urban_route/main.dart';
 import 'package:urban_route/components/status_popup.dart';
+import 'package:urban_route/services/supabase_logging.dart';
 
 class ReportPage extends StatefulWidget {
   const ReportPage({super.key});
@@ -33,6 +34,12 @@ class _ReportPageState extends State<ReportPage> {
       setState(() {
         _errorMessage = 'Please sign in to submit a report.';
       });
+      await SupabaseLogging.logError(
+        eventType: '[Report][Report Submit] Authentication required',
+        description: 'User attempted to submit report without being signed in',
+        error: 'Authentication required',
+        statusCode: 401,
+      );
       return;
     }
 
@@ -40,6 +47,12 @@ class _ReportPageState extends State<ReportPage> {
       setState(() {
         _errorMessage = 'Please enter a report message.';
       });
+      await SupabaseLogging.logError(
+        eventType: '[Report][Report Submit] Empty report text',
+        description: 'User attempted to submit empty report',
+        error: 'Empty report text',
+        statusCode: 400,
+      );
       return;
     }
 
@@ -58,6 +71,8 @@ class _ReportPageState extends State<ReportPage> {
       );
 
       String emotionResponse = '';
+      Map<String, dynamic>? emotionData;
+      
       if (serverResponse.statusCode == 200) {
         try {
           final decoded = jsonDecode(serverResponse.body);
@@ -71,11 +86,39 @@ class _ReportPageState extends State<ReportPage> {
                 labels.length,
                 (i) => '${labels[i]}: ${(probs[i] as num).toStringAsFixed(3)}',
               ).join('\n');
+          
+          emotionData = {
+            'prediction': predictedLabel,
+            'probabilities': Map.fromIterables(labels, probs),
+          };
+          
+          await SupabaseLogging.log(
+            eventType: 'emotion_analysis',
+            description: 'Emotion analysis completed for report',
+            metadata: emotionData,
+          );
         } catch (e) {
           print('Error parsing emotion response: $e');
           emotionResponse = 'Emotion Analysis: $e';
+          
+          await SupabaseLogging.logError(
+            eventType: '[Report][Emotion Analysis] Error parsing emotion analysis response',
+            description: 'Error parsing emotion analysis response',
+            error: e,
+            metadata: {'response_body': serverResponse.body},
+            statusCode: 500,
+          );
         }
+      } else {
+        await SupabaseLogging.logError(
+          eventType: '[Report][Emotion Analysis] Emotion analysis server returned error',
+          description: 'Emotion analysis server returned error',
+          error: 'HTTP ${serverResponse.statusCode}',
+          metadata: {'response_body': serverResponse.body},
+          statusCode: 500,
+        );
       }
+      
       if (_latitude != null && _longitude != null) {
         await _fetchNearestWayId(_latitude!, _longitude!);
       }
@@ -105,6 +148,19 @@ class _ReportPageState extends State<ReportPage> {
           .select();
 
       print('Supabase response: $response'); // Debug print
+      
+      // Log successful report submission
+      await SupabaseLogging.log(
+        eventType: '[Report][Report Submit] Successful report submission',
+        description: 'User submitted a new report',
+        metadata: {
+          'report_id': response[0]['id'],
+          'is_public': _isPublic,
+          'has_location': _latitude != null && _longitude != null,
+          'osm_way_id': osmWayId,
+          'emotion_analysis': emotionData,
+        },
+      );
 
       setState(() {
         _responseText = 'Report submitted successfully!\n\n$emotionResponse';
@@ -132,6 +188,18 @@ class _ReportPageState extends State<ReportPage> {
         _errorMessage = 'Error: $e';
       });
       
+      await SupabaseLogging.logError(
+        eventType: '[Report][Report Submit] Error submitting report',
+        description: 'Error submitting report',
+        error: e.toString(),
+        metadata: {
+          'stack_trace': stackTrace.toString(),
+          'report_text_length': inputText.length,
+          'has_location': _latitude != null && _longitude != null,
+        },
+        statusCode: 500,
+      );
+      
       if (mounted) {
         StatusPopup.showError(
           context: context,
@@ -147,33 +215,78 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Future<void> _fetchNearestWayId(double latitude, double longitude) async {
-  try {
-    final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1');
+    try {
+      final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1');
 
-    final response = await http.get(url, headers: {
-      'User-Agent': 'urban_route_app/1.0 (your@email.com)',
-    });
+      final response = await http.get(url, headers: {
+        'User-Agent': 'urban_route_app/1.0 (your@email.com)',
+      });
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
 
-      if (data.containsKey('osm_type') && data.containsKey('osm_id')) {
-        osmWayId = data['osm_id'];
-        print('OSM ID (closest way/node): ${data['osm_id']}');
+        if (data.containsKey('osm_type') && data.containsKey('osm_id')) {
+          osmWayId = data['osm_id'];
+          print('OSM ID (closest way/node): ${data['osm_id']}');
+          
+          await SupabaseLogging.log(
+            eventType: '[Report][OSM Lookup] Successful OSM way ID lookup',
+            description: 'OSM way ID lookup successful',
+            metadata: {
+              'osm_id': data['osm_id'],
+              'osm_type': data['osm_type'],
+              'latitude': latitude,
+              'longitude': longitude,
+            },
+          );
+        } else {
+          print('No OSM ID found for this location, falling back to -1 as failsafe.');
+          osmWayId = -1;
+          
+          await SupabaseLogging.logError(
+            eventType: '[Report][OSM Lookup] No OSM ID found for location',
+            description: 'No OSM ID found for location',
+            error: 'Missing OSM data',
+            metadata: {
+              'latitude': latitude,
+              'longitude': longitude,
+              'response': data,
+            },
+            statusCode: 500,
+          );
+        }
       } else {
-        print('No OSM ID found for this location, falling back to -1 as failsafe.');
+        print('Error fetching OSM data, using -1 as failsafe: ${response.statusCode}');
         osmWayId = -1;
+        
+        await SupabaseLogging.logError(
+          eventType: '[Report][OSM Lookup] OSM API request failed',
+          description: 'OSM API request failed',
+          error: 'HTTP ${response.statusCode}',
+          metadata: {
+            'latitude': latitude,
+            'longitude': longitude,
+            'response_body': response.body,
+          },
+          statusCode: 500,
+        );
       }
-    } else {
-      print('Error fetching OSM data, using -1 as failsafe: ${response.statusCode}');
+    } catch (e) {
+      print('Error during OSM reverse lookup, using -1 as failsafe: $e');
       osmWayId = -1;
+      
+      await SupabaseLogging.logError(
+        eventType: '[Report][OSM Lookup] Error during OSM reverse lookup',
+        description: 'Error during OSM reverse lookup',
+        error: e.toString(),
+        metadata: {
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+        statusCode: 500,
+      );
     }
-  } catch (e) {
-    print('Error during OSM reverse lookup, using -1 as failsafe: $e');
-    osmWayId = -1;
   }
-}
-
 
   @override
   void dispose() {
@@ -280,12 +393,24 @@ class _ReportPageState extends State<ReportPage> {
                                         setState(() {
                                           _errorMessage = 'Error getting location: $e';
                                         });
+                                        
+                                        await SupabaseLogging.logError(
+                                          eventType: '[Report][Location Error] Error getting user location',
+                                          description: 'Error getting user location',
+                                          error: e.toString(),
+                                          statusCode: 500,
+                                        );
                                       }
                                     } else {
                                       setState(() {
                                         _latitude = null;
                                         _longitude = null;
                                       });
+                                      
+                                      await SupabaseLogging.log(
+                                        eventType: '[Report][Location Error] User disabled location for report',
+                                        description: 'User disabled location for report',
+                                      );
                                     }
                                   },
                                 ),
