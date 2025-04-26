@@ -23,6 +23,7 @@ class _ReportPageState extends State<ReportPage> {
   double? _latitude;
   double? _longitude;
   String? _errorMessage;
+  int? osmWayId;
 
   Future<void> _makeHttpRequest() async {
     final inputText = _reportController.text.trim();
@@ -75,6 +76,9 @@ class _ReportPageState extends State<ReportPage> {
           emotionResponse = 'Emotion Analysis: $e';
         }
       }
+      if (_latitude != null && _longitude != null) {
+        await _fetchNearestWayId(_latitude!, _longitude!);
+      }
 
       // Prepare the report data with explicit typing
       final reportData = {
@@ -87,6 +91,7 @@ class _ReportPageState extends State<ReportPage> {
         'longitude': _longitude != null ? _longitude : -1,
         'latitude': _latitude != null ? _latitude : -1,
         'status': -1,
+        'osm_way_id': osmWayId,
         'media_url': null,
         'is_public': _isPublic,
       };
@@ -140,6 +145,35 @@ class _ReportPageState extends State<ReportPage> {
       });
     }
   }
+
+  Future<void> _fetchNearestWayId(double latitude, double longitude) async {
+  try {
+    final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1');
+
+    final response = await http.get(url, headers: {
+      'User-Agent': 'urban_route_app/1.0 (your@email.com)',
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data.containsKey('osm_type') && data.containsKey('osm_id')) {
+        osmWayId = data['osm_id'];
+        print('OSM ID (closest way/node): ${data['osm_id']}');
+      } else {
+        print('No OSM ID found for this location, falling back to -1 as failsafe.');
+        osmWayId = -1;
+      }
+    } else {
+      print('Error fetching OSM data, using -1 as failsafe: ${response.statusCode}');
+      osmWayId = -1;
+    }
+  } catch (e) {
+    print('Error during OSM reverse lookup, using -1 as failsafe: $e');
+    osmWayId = -1;
+  }
+}
+
 
   @override
   void dispose() {
