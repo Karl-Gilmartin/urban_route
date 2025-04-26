@@ -11,6 +11,7 @@ import 'pages/map_page.dart';
 import 'package:flutter/services.dart';
 import 'pages/profile_settings_page.dart';
 import 'pages/navigate.dart';
+import 'pages/home_page.dart';
 
 class AppColors {
   static const white = Color(0xFFFFFFFF);
@@ -86,58 +87,10 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
-        '/home': (context) => HomePage(selectedIndex: _selectedIndex, onItemTapped: _onItemTapped),
+        '/home': (context) => const HomePage(),
         '/profile/settings': (context) => const ProfileSettingsPage(),
         '/navigate': (context) => const NavigatePage(),
       },
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onItemTapped;
-
-  const HomePage({
-    super.key,
-    required this.selectedIndex,
-    required this.onItemTapped,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: selectedIndex,
-        children: [
-          const Center(
-            child: Text('Home Page'),
-          ),
-          const ReportPage(),
-          const ProfileSettingsPage(),
-          const MapPage(),
-          const NavigatePage(),
-        ],
-      ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: selectedIndex,
-        onItemTapped: onItemTapped,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Intercom.instance.displayMessenger();
-        },
-        shape: const CircleBorder(),
-        child: SvgPicture.asset(
-          'assets/messenger.svg',
-          width: 33,
-          height: 33,
-          colorFilter: const ColorFilter.mode(
-            Colors.white,
-            BlendMode.srcIn,
-          ),
-        ),
-      ),
     );
   }
 }
