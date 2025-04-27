@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:urban_route/main.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -31,15 +32,17 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // First, check if the user exists
-      final List<dynamic> users = await Supabase.instance.client
-          .from('Users')
+      // First, check if the user exists and is active
+      final user = await Supabase.instance.client
+          .from('users')
           .select()
-          .eq('email', _emailController.text.trim());
+          .eq('email', _emailController.text.trim())
+          .eq('is_verified', true)
+          .single();
 
-      if (users.isEmpty) {
+      if (user == null) {
         setState(() {
-          _errorMessage = 'No user found with this email';
+          _errorMessage = 'No active user found with this email';
           _isLoading = false;
         });
         return;
@@ -51,10 +54,13 @@ class _LoginPageState extends State<LoginPage> {
       );
       
       if (res.user != null) {
-        // Update last_logged_in
+        // Update last_logged_in and updated_at
         await Supabase.instance.client
-            .from('Users')
-            .update({'last_logged_in': DateTime.now().toIso8601String()})
+            .from('users')
+            .update({
+              'last_logged_in': DateTime.now().toIso8601String(),
+              'updated_at': DateTime.now().toIso8601String(),
+            })
             .eq('id', res.user!.id);
 
         if (mounted) {
@@ -262,7 +268,6 @@ class _LoginPageState extends State<LoginPage> {
                                   ? const SizedBox(
                                       height: 20,
                                       width: 20,
-                                      
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
