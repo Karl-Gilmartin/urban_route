@@ -104,7 +104,7 @@ class _ReportPageState extends State<ReportPage> {
           await SupabaseLogging.logError(
             eventType: '[Report][Emotion Analysis] Error parsing emotion analysis response',
             description: 'Error parsing emotion analysis response',
-            error: e,
+            error: e.toString(),
             metadata: {'response_body': serverResponse.body},
             statusCode: 500,
           );

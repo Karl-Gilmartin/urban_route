@@ -45,8 +45,8 @@ class SupabaseLogging {
   }) async {
     final errorMetadata = {
       'error': error.toString(),
-      if (error is Error) 'stackTrace': error.stackTrace?.toString(),
-      ...?metadata,
+      // if (error is Error) 'stackTrace': error.stackTrace?.toString(),
+      // ...?metadata,
     };
 
     await log(
