@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:urban_route/main.dart';
 import 'route_info_row.dart';
 import '../pages/route_details_page.dart';
+import '../pages/route_page.dart';
 
 class WalkingRouteCard extends StatelessWidget {
   final String startPoint;
@@ -9,6 +10,8 @@ class WalkingRouteCard extends StatelessWidget {
   final Map<String, dynamic> startLocation;
   final Map<String, dynamic> destinationLocation;
   final Map<String, dynamic> routeData;
+  final String routeType; // 'standard' or 'safer'
+  final VoidCallback? onTap;
 
   const WalkingRouteCard({
     super.key,
@@ -17,17 +20,46 @@ class WalkingRouteCard extends StatelessWidget {
     required this.startLocation,
     required this.destinationLocation,
     required this.routeData,
+    this.routeType = 'standard',
+    this.onTap,
   });
+
+  String _formatDuration(int milliseconds) {
+    final minutes = (milliseconds / 60000).round();
+    if (minutes < 60) {
+      return '$minutes minutes';
+    } else {
+      final hours = minutes ~/ 60;
+      final remainingMinutes = minutes % 60;
+      return '$hours hour${hours > 1 ? 's' : ''} $remainingMinutes minute${remainingMinutes != 1 ? 's' : ''}';
+    }
+  }
+
+  String _formatDistance(double meters) {
+    if (meters < 1000) {
+      return '${meters.round()} m';
+    } else {
+      return '${(meters / 1000).toStringAsFixed(1)} km';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool isSaferRoute = routeType == 'safer';
+    final int time = isSaferRoute 
+        ? (routeData['time'] ?? 0) 
+        : (routeData['paths']?[0]?['time'] ?? 0);
+    final double distance = isSaferRoute 
+        ? (routeData['distance'] ?? 0.0) 
+        : (routeData['paths']?[0]?['distance'] ?? 0.0);
+    
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
       child: InkWell(
-        onTap: () {
+        onTap: onTap ?? () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -49,11 +81,15 @@ class WalkingRouteCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.directions_walk, color: AppColors.brightCyan),
+                  Icon(
+                    Icons.directions_walk, 
+                    color: isSaferRoute ? AppColors.deepBlue : AppColors.brightCyan,
+                    size: isSaferRoute ? 28 : 24,
+                  ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Walking Route',
-                    style: TextStyle(
+                  Text(
+                    isSaferRoute ? 'Safer Walking Route' : 'Walking Route',
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -65,12 +101,23 @@ class WalkingRouteCard extends StatelessWidget {
               const SizedBox(height: 8),
               RouteInfoRow(
                 label: 'Time',
-                value: '${(routeData['paths']?[0]?['time'] ?? 0) ~/ 60000} minutes',
+                value: _formatDuration(time),
               ),
               RouteInfoRow(
                 label: 'Distance',
-                value: '${((routeData['paths']?[0]?['distance'] ?? 0) / 1000).toStringAsFixed(1)} km',
+                value: _formatDistance(distance),
               ),
+              if (isSaferRoute) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'This route prioritizes safety over speed, avoiding areas with may be deemed unsafe.',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
