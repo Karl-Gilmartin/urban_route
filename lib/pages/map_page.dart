@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../components/report_popup.dart';
+import '../pages/heatmap_page.dart';
 
 const String MAPBOX_STYLE = 'mapbox://styles/mapbox/light-v10';
 
@@ -149,7 +150,16 @@ class _MapPageState extends State<MapPage> {
           IconButton(
             icon: Icon(_isTracking ? Icons.location_on : Icons.location_off),
             onPressed: _toggleTracking,
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.waves),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HeatmapPage()),
+              );
+            },
+          ),
         ],
       ),
       body: Stack(
