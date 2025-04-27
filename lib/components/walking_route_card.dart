@@ -3,6 +3,7 @@ import 'package:urban_route/main.dart';
 import 'route_info_row.dart';
 import '../pages/route_details_page.dart';
 import '../pages/route_page.dart';
+import '../pages/safe_route_page.dart';
 
 class WalkingRouteCard extends StatelessWidget {
   final String startPoint;
@@ -25,6 +26,10 @@ class WalkingRouteCard extends StatelessWidget {
   });
 
   String _formatDuration(int milliseconds) {
+    if (milliseconds == null || milliseconds <= 0) {
+      return 'No time available';
+    }
+    
     final minutes = (milliseconds / 60000).round();
     if (minutes < 60) {
       return '$minutes minutes';
@@ -36,6 +41,10 @@ class WalkingRouteCard extends StatelessWidget {
   }
 
   String _formatDistance(double meters) {
+    if (meters == null || meters <= 0) {
+      return 'No distance available';
+    }
+    
     if (meters < 1000) {
       return '${meters.round()} m';
     } else {
@@ -60,18 +69,30 @@ class WalkingRouteCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap ?? () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RouteDetailsPage(
-                startPoint: startPoint,
-                destination: destination,
-                startLocation: startLocation,
-                destinationLocation: destinationLocation,
-                routeData: routeData,
+          if (isSaferRoute) {
+            print('Navigating to SafeRoutePage with data: $routeData');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SafeRoutePage(
+                  routeData: routeData,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RouteDetailsPage(
+                  startPoint: startPoint,
+                  destination: destination,
+                  startLocation: startLocation,
+                  destinationLocation: destinationLocation,
+                  routeData: routeData,
+                ),
+              ),
+            );
+          }
         },
         borderRadius: BorderRadius.circular(15),
         child: Padding(
@@ -81,20 +102,41 @@ class WalkingRouteCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.directions_walk, 
-                    color: isSaferRoute ? AppColors.deepBlue : AppColors.brightCyan,
-                    size: isSaferRoute ? 28 : 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isSaferRoute ? 'Safer Walking Route' : 'Walking Route',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.brightCyan.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.directions_walk, 
+                          color: AppColors.brightCyan,
+                          size: 24,
+                        ),
+                        if (isSaferRoute) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.shield,
+                            color: AppColors.deepBlue.withOpacity(0.6),
+                            size: 20,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      isSaferRoute ? 'Safer Walking Route' : 'Walking Route',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   const Icon(Icons.arrow_forward_ios, color: AppColors.brightCyan),
                 ],
               ),
