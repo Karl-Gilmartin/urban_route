@@ -44,6 +44,7 @@ dependencies:
   mapbox_gl_dart: ^0.2.1
   flutter_heat_map: ^1.2.1
   flutter_map_heatmap: ^0.0.8
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
