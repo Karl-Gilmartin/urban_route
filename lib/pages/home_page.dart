@@ -5,6 +5,7 @@ import 'package:urban_route/pages/profile_settings_page.dart';
 import 'package:urban_route/pages/report_page.dart';
 import 'package:urban_route/pages/map_page.dart';
 import 'package:urban_route/components/bottom_nav_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -69,8 +70,8 @@ class HomeContent extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Home Page',
+              Text(
+                'home.home_page'.tr(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 32,
@@ -78,9 +79,9 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Welcome to Urban Route',
-                style: TextStyle(
+              Text(
+                'home.welcome_back'.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                 ),

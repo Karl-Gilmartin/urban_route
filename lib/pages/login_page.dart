@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:urban_route/main.dart';
+import 'package:urban_route/schema/database_schema.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,10 +37,10 @@ class _LoginPageState extends State<LoginPage> {
     try {
       // First, check if the user exists and is active
       final user = await Supabase.instance.client
-          .from('users')
+          .from(DatabaseSchema.users)
           .select()
-          .eq('email', _emailController.text.trim())
-          .eq('is_verified', true)
+          .eq(Users.email, _emailController.text.trim())
+          .eq(Users.isActive, true)
           .single();
 
       if (user == null) {
@@ -54,14 +57,28 @@ class _LoginPageState extends State<LoginPage> {
       );
       
       if (res.user != null) {
-        // Update last_logged_in and updated_at
         await Supabase.instance.client
-            .from('users')
-            .update({
-              'last_logged_in': DateTime.now().toIso8601String(),
-              'updated_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', res.user!.id);
+            .from(DatabaseSchema.users)
+            .update(DatabaseSchema.updateLastLogin())
+            .eq(Users.id, res.user!.id);
+            
+
+        if (user[Users.preferredLanguage] != null) {
+          // to do: make this a map or something more efficient
+          String dbLanguage = user[Users.preferredLanguage].toString().toLowerCase();
+          String languageCode;
+          
+          if (dbLanguage.contains('es') || 
+              dbLanguage == 'Español') {
+            languageCode = 'es';
+          } else {
+            // default to english
+            languageCode = 'en';
+          }
+          
+          // update the locale
+          _saveUserLanguagePreference(languageCode);
+        }
 
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/home');
@@ -94,12 +111,31 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = 'An unexpected error occurred: $error';
       });
       print('General Error: $error'); // For debugging
-    } finally {
+    
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
+    }
+  }
+  
+  void _saveUserLanguagePreference(String languageCode) async {
+    try {
+      // to do: make this a map or something more efficient
+      if (!['en', 'es'].contains(languageCode)) {
+        languageCode = 'en'; // default to english
+      }
+      
+      // update the app locale
+      context.setLocale(Locale(languageCode));
+      
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('language', languageCode);
+    } catch (e) {
+      print('Error setting language preference: $e');
+      // Default to English in case of error
+      context.setLocale(const Locale('en'));
     }
   }
 
@@ -175,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'Welcome Back',
+                              'auth.welcome_back'.tr(),
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -187,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
-                                labelText: 'Email',
+                                labelText: 'auth.email'.tr(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -213,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
-                                labelText: 'Password',
+                                labelText: 'auth.password'.tr(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -273,46 +309,85 @@ class _LoginPageState extends State<LoginPage> {
                                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                       ),
                                     )
-                                  : const Text(
-                                      'Sign In',
-                                      style: TextStyle(
+                                  : Text(
+                                      'auth.sign_in'.tr(),
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                             ),
+
+                            const SizedBox(height: 16),
+                            
+                            // Sign up link
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('auth.no_account'.tr()),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed('/signup');
+                                  },
+                                  child: Text(
+                                    'auth.sign_up'.tr(),
+                                    style: TextStyle(
+                                      color: AppColors.brightCyan,  
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),  
+                            
+                            // Language selector
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('${context.locale.languageCode == 'en' ? 'Language' : 'Idioma'}: '),
+                                const SizedBox(width: 8),
+                                DropdownButton<String>(
+                                  value: context.locale.languageCode,
+                                  underline: Container(
+                                    height: 2,
+                                    color: AppColors.brightCyan,
+                                  ),
+                                  items: [
+                                    DropdownMenuItem(
+                                      value: 'en',
+                                      child: Text(
+                                        'English',
+                                        style: TextStyle(
+                                          fontWeight: context.locale.languageCode == 'en'
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'es',
+                                      child: Text(
+                                        'Español',
+                                        style: TextStyle(
+                                          fontWeight: context.locale.languageCode == 'es'
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      _saveUserLanguagePreference(newValue);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Link to signup page
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Don\'t have an account?',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushReplacementNamed('/signup');
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text(
-                            'Sign Up',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),

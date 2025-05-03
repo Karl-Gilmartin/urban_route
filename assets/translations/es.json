@@ -1,0 +1,51 @@
+{
+  "common": {
+    "app_name": "Ruta Urbana",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "sign_in": "Entrar",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "welcome_back": "Bienvenido de nuevo",
+    "sign_up": "Registrarse",
+    "no_account": "¿No tienes una cuenta?",
+    "create_account": "Crear Cuenta",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "invalid_credentials": "Credenciales inválidas. Por favor revisa tu correo y contraseña."
+  },
+  "reports": {
+    "create_report": "Crear Informe",
+    "submit_report": "Enviar Informe",
+    "location": "Ubicación",
+    "use_current_location": "Usar Ubicación Actual",
+    "report_visibility": "Visibilidad del Informe",
+    "public": "Público",
+    "private": "Privado",
+    "input_method": "Método de Entrada",
+    "audio_input": "Entrada de Audio",
+    "text_input": "Entrada de Texto",
+    "report_message": "Mensaje del Informe",
+    "report_description": "Describe tu problema aquí...",
+    "report_details": "Detalles del Informe",
+    "report_this": "Reportar este informe",
+    "reason": "Razón",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "severity": "Gravedad",
+    "date": "Fecha",
+    "not_set": "No establecido"
+  },
+  "map": {
+    "map_view": "Vista de Mapa 3D",
+    "loading_reports": "Cargando informes...",
+    "retry": "Reintentar"
+  },
+  "home": {
+    "home_page": "Página de Inicio",
+    "welcome_back": "Bienvenido de nuevo"
+  }
+} 

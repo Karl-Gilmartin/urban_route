@@ -1,0 +1,51 @@
+{
+  "common": {
+    "app_name": "Urban Route",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "auth": {
+    "login": "Login",
+    "sign_in": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "welcome_back": "Welcome Back",
+    "sign_up": "Sign Up",
+    "no_account": "Don't have an account?",
+    "create_account": "Create Account",
+    "forgot_password": "Forgot Password?",
+    "invalid_credentials": "Invalid credentials. Please check your email and password."
+  },
+  "reports": {
+    "create_report": "Create Report",
+    "submit_report": "Submit Report",
+    "location": "Location",
+    "use_current_location": "Use Current Location",
+    "report_visibility": "Report Visibility",
+    "public": "Public",
+    "private": "Private",
+    "input_method": "Input Method",
+    "audio_input": "Audio Input",
+    "text_input": "Text Input",
+    "report_message": "Report Message",
+    "report_description": "Describe your issue here...",
+    "report_details": "Report Details",
+    "report_this": "Report this report",
+    "reason": "Reason",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "severity": "Severity",
+    "date": "Date",
+    "not_set": "Not Set"
+  },
+  "map": {
+    "map_view": "3D Map View",
+    "loading_reports": "Loading reports...",
+    "retry": "Retry"
+  },
+  "home": {
+    "home_page": "Home Page",
+    "welcome_back": "Welcome Back"
+  }
+} 

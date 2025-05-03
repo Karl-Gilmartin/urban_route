@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intercom_flutter/intercom_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'components/bottom_nav_bar.dart';
 import 'pages/report_page.dart';
 import 'pages/login_page.dart';
@@ -21,8 +23,12 @@ class AppColors {
   static const cyanBlue = Color(0xFF007EA7);
   static const brightCyan = Color(0xFF00A8E8);
 }
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // init localization - this should get the system locale and save it
+  await EasyLocalization.ensureInitialized();
 
   // Load environment variables
   await dotenv.load(fileName: ".env");
@@ -47,13 +53,28 @@ void main() async {
 
   if (user != null) {
     SupabaseLogging.logEvent(eventType: 'User is authenticated! User ID: ${user.id}');
-  } else if (dotenv.env['DEV_MODE'] == 'true') {
-    SupabaseLogging.logEvent(eventType: 'User is NOT authenticated as dev mode is enabled!', description: 'User is NOT authenticated!', statusCode: 401);
   } else {
     SupabaseLogging.logError(eventType: 'User is NOT authenticated!', description: 'User is NOT authenticated!', statusCode: 401, error: 'User is NOT authenticated!');
   }
   
-  runApp(const MyApp());
+  // Load saved language preference or default to device locale
+  // setup the initial locale
+  final prefs = await SharedPreferences.getInstance();
+  String? savedLanguage = prefs.getString('language');
+  Locale initialLocale = savedLanguage != null 
+      ? Locale(savedLanguage) 
+      : Locale('en');
+  
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('es')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      startLocale: initialLocale,
+      useOnlyLangCode: true,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -77,7 +98,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Urban Route',
+      title: 'common.app_name'.tr(),
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1F8DED), // Intercom blue color
@@ -94,6 +118,29 @@ class _MyAppState extends State<MyApp> {
           backgroundColor: Color(0xFF1F8DED),
         ),
       ),
+      builder: (context, child) {
+        return Scaffold(
+          body: child,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 56.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                Intercom.instance.displayMessenger();
+              },
+              shape: const CircleBorder(),
+              child: SvgPicture.asset(
+                'assets/messenger.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
       initialRoute: devMode ? '/home' : '/login',
       routes: {
         '/login': (context) => const LoginPage(),
