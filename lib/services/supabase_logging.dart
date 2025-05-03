@@ -57,4 +57,19 @@ class SupabaseLogging {
     );
   }
 
+  static Future<void> logEvent({
+    required String eventType,
+    String? description,
+    Map<String, dynamic>? metadata,
+    int? statusCode,
+  }) async {
+    await log(
+      eventType: '[Event][$eventType]',
+      description: description,
+      metadata: metadata,
+      statusCode: statusCode,
+    );
+  }
+  
+
 } 

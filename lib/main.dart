@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'pages/profile_settings_page.dart';
 import 'pages/navigate.dart';
 import 'pages/home_page.dart';
+import 'services/supabase_logging.dart';
 
 class AppColors {
   static const white = Color(0xFFFFFFFF);
@@ -41,6 +42,16 @@ void main() async {
   
   // Register an unidentified user
   await Intercom.instance.loginUnidentifiedUser();
+  
+  final user = Supabase.instance.client.auth.currentUser;
+
+  if (user != null) {
+    SupabaseLogging.logEvent(eventType: 'User is authenticated! User ID: ${user.id}');
+  } else if (dotenv.env['DEV_MODE'] == 'true') {
+    SupabaseLogging.logEvent(eventType: 'User is NOT authenticated as dev mode is enabled!', description: 'User is NOT authenticated!', statusCode: 401);
+  } else {
+    SupabaseLogging.logError(eventType: 'User is NOT authenticated!', description: 'User is NOT authenticated!', statusCode: 401, error: 'User is NOT authenticated!');
+  }
   
   runApp(const MyApp());
 }
