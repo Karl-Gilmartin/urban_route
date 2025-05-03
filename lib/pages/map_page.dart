@@ -6,7 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../components/report_popup.dart';
 import '../pages/heatmap_page.dart';
-
+import '../schema/database_schema.dart';
+import '../services/supabase_logging.dart';
 const String MAPBOX_STYLE = 'mapbox://styles/mapbox/light-v10';
 
 class MapPage extends StatefulWidget {
@@ -75,19 +76,43 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _fetchPublicReports() async {
     try {
+      // Join reports, report_locations, and report_contents using explicit relationship names
       final response = await Supabase.instance.client
-          .from('reports')
-          .select()
-          .eq('is_public', true)
-          .order('report_date', ascending: false);
+          .from(DatabaseSchema.reports)
+          .select(
+          '${Reports.id},${Reports.severity},${Reports.isPublic},${Reports.locationId},${Reports.status},'
+          'report_locations!location_id(latitude,longitude),'
+          'report_contents!report_contents_report_id_fkey(report_text)'
+        )
+          .eq(Reports.isPublic, true)
+          .order(Reports.id, ascending: false);
+      // Flatten the joined data for marker rendering
+      final List<Map<String, dynamic>> reports = [];
+      for (final r in response) {
+        final location = (r['report_locations'] is Map)
+            ? r['report_locations']
+            : {};
+        final contents = (r['report_contents'] is List && r['report_contents'].isNotEmpty)
+            ? r['report_contents'][0]
+            : {};
+        reports.add({
+          'id': r[Reports.id],
+          'latitude': location['latitude'],
+          'longitude': location['longitude'],
+          'severity': r[Reports.severity],
+          'status': r[Reports.status],
+          'report': contents['report_text'],
+          'is_public': r[Reports.isPublic],
+        });
+      }
       setState(() {
-        _publicReports = List<Map<String, dynamic>>.from(response);
+        _publicReports = reports;
       });
       if (_mapController != null) {
         _addReportMarkers();
       }
     } catch (e) {
-      print('Error fetching reports: $e');
+      SupabaseLogging.logError(eventType: 'Error fetching reports', description: 'Error fetching reports: $e', error: e.toString(), statusCode: 500);
     }
   }
 
@@ -147,12 +172,12 @@ class _MapPageState extends State<MapPage> {
         title: const Text('3D Map View'),
         backgroundColor: const Color(0xFF1F8DED),
         actions: [
+          // IconButton(
+          //   icon: Icon(_isTracking ? Icons.location_on : Icons.location_off),
+          //   onPressed: _toggleTracking,
+          // ),
           IconButton(
-            icon: Icon(_isTracking ? Icons.location_on : Icons.location_off),
-            onPressed: _toggleTracking,
-          ),
-          IconButton(
-            icon: const Icon(Icons.waves),
+            icon: const Icon(Icons.arrow_forward_ios),
             onPressed: () {
               Navigator.push(
                 context,

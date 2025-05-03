@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:urban_route/main.dart';
 import 'package:urban_route/components/status_popup.dart';
 import 'package:urban_route/services/supabase_logging.dart';
+import 'package:urban_route/schema/database_schema.dart';
 
 class ReportPage extends StatefulWidget {
   const ReportPage({super.key});
@@ -123,38 +124,54 @@ class _ReportPageState extends State<ReportPage> {
         await _fetchNearestWayId(_latitude!, _longitude!);
       }
 
-      // Prepare the report data with explicit typing
-      final reportData = {
-        'user_id': currentUser.id,
-        'report_date': DateTime.now().toIso8601String(),
-        'severity': -1,
-        'report_en': inputText,
-        'report': inputText,
-        'audio_url': null,
-        'longitude': _longitude != null ? _longitude : -1,
-        'latitude': _latitude != null ? _latitude : -1,
-        'status': -1,
-        'osm_way_id': osmWayId,
-        'media_url': null,
-        'is_public': _isPublic,
-      };
+      // Then, save to Supabase (normalized schema)
+      // 1. Insert location
+      final locationInsert = await Supabase.instance.client
+          .from(DatabaseSchema.reportLocations)
+          .insert(DatabaseSchema.createReportLocationRecord(
+            latitude: _latitude ?? -1,
+            longitude: _longitude ?? -1,
+            address: '', // Optionally add address lookup
+            osmId: osmWayId?.toString() ?? '-1',
+          ))
+          .select('id')
+          .single();
+      final locationId = locationInsert['id'];
 
-      print('Submitting report with data: $reportData'); // Debug print
+      // 2. Insert report
+      final reportInsert = await Supabase.instance.client
+          .from(DatabaseSchema.reports)
+          .insert(DatabaseSchema.createReportRecord(
+            userId: currentUser.id,
+            severity: -1,
+            status: -1,
+            isPublic: _isPublic,
+            osmWayId: osmWayId?.toString() ?? '-1',
+            locationId: locationId,
+          ))
+          .select('id')
+          .single();
+      final reportId = reportInsert['id'];
 
-      // Then, save to Supabase
-      final response = await Supabase.instance.client
-          .from('reports')
-          .insert(reportData)
-          .select();
+      // 3. Insert report content
+      await Supabase.instance.client
+          .from(DatabaseSchema.reportContents)
+          .insert(DatabaseSchema.createReportContentRecord(
+            reportId: reportId,
+            language: 'en',
+            reportText: inputText,
+            audioUrl: null,
+            mediaUrls: null,
+          ));
 
-      print('Supabase response: $response'); // Debug print
+      print('Report submitted with reportId: $reportId'); // Debug print
       
       // Log successful report submission
       await SupabaseLogging.log(
         eventType: '[Report][Report Submit] Successful report submission',
         description: 'User submitted a new report',
         metadata: {
-          'report_id': response[0]['id'],
+          'report_id': reportId,
           'is_public': _isPublic,
           'has_location': _latitude != null && _longitude != null,
           'osm_way_id': osmWayId,
