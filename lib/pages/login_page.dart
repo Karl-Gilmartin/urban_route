@@ -80,6 +80,8 @@ class _LoginPageState extends State<LoginPage> {
           _saveUserLanguagePreference(languageCode);
         }
 
+        // here is where I need
+
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/home');
         }

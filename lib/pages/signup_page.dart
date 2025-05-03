@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:urban_route/main.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -22,7 +24,10 @@ class _SignupPageState extends State<SignupPage> {
   bool _isLoading = false;
   String? _errorMessage;
   bool _acceptedTerms = false;
-  String _selectedLanguage = 'English';
+  bool _marketingOptIn = false;
+  bool _dataIsTrainable = false;
+  String _selectedLanguage = 'en';
+  String _selectedTimezone = '';
 
   final List<Map<String, String>> _languages = [
     {'code': 'en', 'name': 'English'},
@@ -36,6 +41,17 @@ class _SignupPageState extends State<SignupPage> {
     {'code': 'ja', 'name': 'Japanese'},
     {'code': 'ko', 'name': 'Korean'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeTimezones();
+  }
+
+  void _initializeTimezones() {
+    tz.initializeTimeZones();
+    _selectedTimezone = tz.local.name;
+  }
 
   @override
   void dispose() {
@@ -139,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                     itemExtent: 32.0,
                     onSelectedItemChanged: (int index) {
                       setState(() {
-                        _selectedLanguage = _languages[index]['name']!;
+                        _selectedLanguage = _languages[index]['code']!;
                       });
                     },
                     children: _languages.map((language) {
@@ -193,6 +209,13 @@ class _SignupPageState extends State<SignupPage> {
           'date_of_birth': _dateOfBirth?.toIso8601String(),
           'email': _emailController.text.trim(),
           'preferred_language': _selectedLanguage,
+          'timezone': _selectedTimezone,
+          'is_active': true,
+          'is_verified': false,
+          'data_is_trainable': _dataIsTrainable,
+          'marketing_opt_in': _marketingOptIn,
+          'created_at': DateTime.now().toIso8601String(),
+          'updated_at': DateTime.now().toIso8601String(),
         });
 
         if (mounted) {
@@ -373,7 +396,7 @@ class _SignupPageState extends State<SignupPage> {
                                     filled: true,
                                     fillColor: Colors.grey[50],
                                   ),
-                                  child: Text(_selectedLanguage),
+                                  child: Text(_languages.firstWhere((lang) => lang['code'] == _selectedLanguage)['name']!),
                                 ),
                               )
                             else
@@ -391,7 +414,7 @@ class _SignupPageState extends State<SignupPage> {
                                 value: _selectedLanguage,
                                 items: _languages.map((language) {
                                   return DropdownMenuItem<String>(
-                                    value: language['name'],
+                                    value: language['code'],
                                     child: Text(language['name']!),
                                   );
                                 }).toList(),
@@ -482,6 +505,70 @@ class _SignupPageState extends State<SignupPage> {
                               },
                             ),
                             const SizedBox(height: 24),
+                            
+                            // Marketing Opt-in checkbox
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: _marketingOptIn,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        _marketingOptIn = value ?? false;
+                                      });
+                                    },
+                                    activeColor: AppColors.brightCyan,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      'I would like to receive marketing communications',
+                                      style: TextStyle(
+                                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Data Training Opt-in checkbox
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: _dataIsTrainable,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        _dataIsTrainable = value ?? false;
+                                      });
+                                    },
+                                    activeColor: AppColors.brightCyan,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      'I agree to allow my data to be used for training purposes',
+                                      style: TextStyle(
+                                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
                             
                             // Terms and Conditions checkbox
                             Container(
