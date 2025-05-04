@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:urban_route/main.dart';
 import 'route_info_row.dart';
-import '../pages/route_details_page.dart';
 import '../pages/route_page.dart';
 import '../pages/safe_route_page.dart';
 
@@ -83,9 +82,7 @@ class WalkingRouteCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => RouteDetailsPage(
-                  startPoint: startPoint,
-                  destination: destination,
+                builder: (context) => RoutePage(
                   startLocation: startLocation,
                   destinationLocation: destinationLocation,
                   routeData: routeData,
