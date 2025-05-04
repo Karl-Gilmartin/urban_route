@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:urban_route/main.dart';
 import 'package:urban_route/components/status_popup.dart';
+import 'package:urban_route/schema/database_schema.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
   const ProfileSettingsPage({super.key});
@@ -60,9 +61,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       final user = Supabase.instance.client.auth.currentUser;
       if (user != null) {
         final userData = await Supabase.instance.client
-            .from('Users')
+            .from(DatabaseSchema.users)
             .select()
-            .eq('id', user.id)
+            .eq(Users.id, user.id)
             .single();
         
         setState(() {
@@ -169,13 +170,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user != null) {
-        await Supabase.instance.client.from('Users').update({
-          'first_name': _firstNameController.text.trim(),
-          'last_name': _lastNameController.text.trim(),
-          'date_of_birth': _dateOfBirth?.toIso8601String(),
-          'preferred_language': _selectedLanguage,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', user.id);
+        await Supabase.instance.client.from(DatabaseSchema.users).update({
+          Users.firstName: _firstNameController.text.trim(),
+          Users.lastName: _lastNameController.text.trim(),
+          Users.dateOfBirth: _dateOfBirth?.toIso8601String(),
+          Users.preferredLanguage: _selectedLanguage,
+          Users.updatedAt: DateTime.now().toIso8601String(),
+        }).eq(Users.id, user.id);
 
         if (mounted) {
           _showSuccessDialog();

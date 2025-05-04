@@ -229,25 +229,6 @@ class _HeatmapPageState extends State<HeatmapPage> {
                 ),
               ),
             ),
-          // Debug overlay
-          Positioned(
-            top: 16,
-            right: 16,
-            child: Card(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Reports: ${_publicReports.length}'),
-                    Text('Zoom: ${_zoom.toStringAsFixed(1)}'),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
       floatingActionButton: Column(
