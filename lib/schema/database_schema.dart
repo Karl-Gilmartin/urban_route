@@ -41,6 +41,13 @@ class Reports {
   static const String isExpired = 'is_expired';
 }
 
+class ReportsTrainable {
+  static const String id = 'id';
+  static const String reportId = 'report_id';
+  static const String severity = 'severity';
+  static const String updatedAt = 'updated_at';
+}
+
 class ReportContents {
   static const String id = 'id';
   static const String reportId = 'report_id';
@@ -68,6 +75,7 @@ class DatabaseSchema {
   static const String reports = 'reports';
   static const String reportContents = 'report_contents';
   static const String reportFlags = 'report_flags';
+  static const String reportsTrainable = 'reports_trainable';
 
   /// Helper method to create a new user record
   static Map<String, dynamic> createUserRecord({
@@ -239,6 +247,20 @@ class DatabaseSchema {
       ReportFlags.flaggedBy: flaggedBy,
       ReportFlags.reason: reason,
       ReportFlags.createdAt: createdAt?.toIso8601String() ?? now,
+    };
+  }
+
+  /// Helper method to create a new reports_trainable record
+  static Map<String, dynamic> createReportsTrainableRecord({
+    required int reportId,
+    required int severity,
+    DateTime? updatedAt,
+  }) {
+    final now = DateTime.now().toIso8601String();
+    return {
+      ReportsTrainable.reportId: reportId,
+      ReportsTrainable.severity: severity,
+      ReportsTrainable.updatedAt: updatedAt?.toIso8601String() ?? now,
     };
   }
 } 

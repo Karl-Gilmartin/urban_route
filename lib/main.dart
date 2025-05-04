@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'pages/profile_settings_page.dart';
 import 'pages/navigate.dart';
 import 'pages/home_page.dart';
+import 'pages/report_annotation_page.dart';
 import 'services/supabase_logging.dart';
 
 class AppColors {
@@ -148,6 +149,7 @@ class _MyAppState extends State<MyApp> {
         '/home': (context) => const HomePage(),
         '/profile/settings': (context) => const ProfileSettingsPage(),
         '/navigate': (context) => const NavigatePage(),
+        '/report/annotation': (context) => const ReportAnnotationPage(),
       },
     );
   }
