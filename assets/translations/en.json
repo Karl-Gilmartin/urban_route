@@ -46,6 +46,14 @@
   },
   "home": {
     "home_page": "Home Page",
-    "welcome_back": "Welcome Back"
+    "welcome_back": "Welcome back, {0}!",
+    "contribute": "How You Can Contribute",
+    "quick_access": "Quick Access",
+    "view_map": "View Map",
+    "navigate": "Navigate",
+    "report": "Report",
+    "settings": "Settings",
+    "annotate_reports": "Annotate Reports",
+    "annotate_description": "Help improve our system by reviewing reports"
   }
 } 

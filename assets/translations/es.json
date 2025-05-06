@@ -46,6 +46,14 @@
   },
   "home": {
     "home_page": "Página de Inicio",
-    "welcome_back": "Bienvenido de nuevo"
+    "welcome_back": "Bienvenido de nuevo, {0}!",
+    "contribute": "Cómo Puedes Contribuir",
+    "quick_access": "Acceso Rápido",
+    "view_map": "Ver Mapa",
+    "navigate": "Navegar",
+    "report": "Informar",
+    "settings": "Ajustes",
+    "annotate_reports": "Anotar Informes",
+    "annotate_description": "Ayuda a mejorar nuestro sistema revisando informes"
   }
 } 

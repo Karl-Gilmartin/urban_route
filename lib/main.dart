@@ -129,14 +129,10 @@ class _MyAppState extends State<MyApp> {
                 Intercom.instance.displayMessenger();
               },
               shape: const CircleBorder(),
-              child: SvgPicture.asset(
-                'assets/messenger.svg',
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
+              child: Icon(
+                Icons.messenger,
+                size: 24,
+                color: Colors.white,
               ),
             ),
           ),
