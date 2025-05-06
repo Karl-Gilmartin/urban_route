@@ -77,6 +77,35 @@ class DatabaseSchema {
   static const String reportFlags = 'report_flags';
   static const String reportsTrainable = 'reports_trainable';
 
+  /// Helper method to fetch current user data
+  static Future<Map<String, dynamic>?> fetchCurrentUserData() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return null;
+    
+    try {
+      final response = await Supabase.instance.client
+          .from(users)
+          .select()
+          .eq(Users.id, userId)
+          .single();
+      
+      return response;
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return null;
+    }
+  }
+  
+  /// Helper method to get user's display name
+  static Future<String> getUserDisplayName() async {
+    final userData = await fetchCurrentUserData();
+    if (userData != null && userData[Users.firstName] != null) {
+      print('User first name: ${userData[Users.firstName]}');
+      return userData[Users.firstName];
+    }
+    return 'User';
+  }
+
   /// Helper method to create a new user record
   static Map<String, dynamic> createUserRecord({
     required String id,
