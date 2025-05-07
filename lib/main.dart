@@ -146,6 +146,8 @@ class _MyAppState extends State<MyApp> {
         '/profile/settings': (context) => const ProfileSettingsPage(),
         '/navigate': (context) => const NavigatePage(),
         '/report/annotation': (context) => const ReportAnnotationPage(),
+        '/map': (context) => const MapPage(),
+        '/report': (context) => const ReportPage(),
       },
     );
   }
