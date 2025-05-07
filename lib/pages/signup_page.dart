@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:urban_route/main.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:urban_route/schema/database_schema.dart';
+import 'package:urban_route/components/terms_and_cons.dart';
+
+
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -202,21 +207,20 @@ class _SignupPageState extends State<SignupPage> {
       
       if (res.user != null) {
         // Insert additional user data into the Users table
-        await Supabase.instance.client.from('Users').insert({
-          'id': res.user!.id,
-          'first_name': _firstNameController.text.trim(),
-          'last_name': _lastNameController.text.trim(),
-          'date_of_birth': _dateOfBirth?.toIso8601String(),
-          'email': _emailController.text.trim(),
-          'preferred_language': _selectedLanguage,
-          'timezone': _selectedTimezone,
-          'is_active': true,
-          'is_verified': false,
-          'data_is_trainable': _dataIsTrainable,
-          'marketing_opt_in': _marketingOptIn,
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
-        });
+        await Supabase.instance.client.from(DatabaseSchema.users).insert(
+          DatabaseSchema.createUserRecord(
+            id: res.user!.id,
+            firstName: _firstNameController.text.trim(),
+            lastName: _lastNameController.text.trim(),
+            email: _emailController.text.trim(),
+            preferredLanguage: _selectedLanguage,
+            dateOfBirth: _dateOfBirth!,
+            dataIsTrainable: _dataIsTrainable,
+            marketingOptIn: _marketingOptIn,
+            timezone: _selectedTimezone,
+          )
+        );
+        print('User created: ${res.user!.id}');
 
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/home');
@@ -228,6 +232,7 @@ class _SignupPageState extends State<SignupPage> {
       }
     } catch (error) {
       setState(() {
+        print('Error: $error');
         _errorMessage = error.toString();
       });
     } finally {
@@ -609,6 +614,17 @@ class _SignupPageState extends State<SignupPage> {
                                                 color: AppColors.brightCyan,
                                                 decoration: TextDecoration.underline,
                                               ),
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  TermsAndConditionsDialog.show(
+                                                    context,
+                                                    onAccept: () {
+                                                      setState(() {
+                                                        _acceptedTerms = true;
+                                                      });
+                                                    },
+                                                  );
+                                                },
                                             ),
                                             TextSpan(
                                               text: ' and ',
@@ -622,6 +638,17 @@ class _SignupPageState extends State<SignupPage> {
                                                 color: AppColors.brightCyan,
                                                 decoration: TextDecoration.underline,
                                               ),
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  TermsAndConditionsDialog.show(
+                                                    context,
+                                                    onAccept: () {
+                                                      setState(() {
+                                                        _acceptedTerms = true;
+                                                      });
+                                                    },
+                                                  );
+                                                },
                                             ),
                                           ],
                                         ),
@@ -707,6 +734,7 @@ class _SignupPageState extends State<SignupPage> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
+                              color: Colors.white,
                             ),
                           ),
                         ),
