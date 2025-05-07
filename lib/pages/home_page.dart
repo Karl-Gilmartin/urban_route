@@ -8,6 +8,8 @@ import 'package:urban_route/components/bottom_nav_bar.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:urban_route/schema/database_schema.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,13 +22,19 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   
   // Pages in the same order as the navigation items
-  final List<Widget> _pages = [
-    const HomeContent(),
-    const ReportPage(),
-    const ProfileSettingsPage(),
-    const MapPage(),
-    const NavigatePage(),
-  ];
+  late final List<Widget> _pages;
+  
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomeContent(onNavigate: _onItemTapped),
+      const ReportPage(),
+      const ProfileSettingsPage(),
+      const MapPage(),
+      const NavigatePage(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -51,7 +59,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class HomeContent extends StatefulWidget {
-  const HomeContent({super.key});
+  final Function(int)? onNavigate;
+  
+  const HomeContent({super.key, this.onNavigate});
 
   @override
   State<HomeContent> createState() => _HomeContentState();
@@ -98,7 +108,7 @@ class _HomeContentState extends State<HomeContent> {
       child: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -115,7 +125,7 @@ class _HomeContentState extends State<HomeContent> {
                       ),
                 const SizedBox(height: 8),
                 Text(
-                  'home.home_page'.tr(),
+                  'common.slogan'.tr(),
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 16,
@@ -237,7 +247,7 @@ class _HomeContentState extends State<HomeContent> {
                         context, 
                         Icons.map, 
                         'home.view_map'.tr(),
-                        () => Navigator.pushNamed(context, '/map'),
+                        () => widget.onNavigate?.call(3),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -246,7 +256,7 @@ class _HomeContentState extends State<HomeContent> {
                         context, 
                         Icons.navigation, 
                         'home.navigate'.tr(),
-                        () => Navigator.pushNamed(context, '/navigate'),
+                        () => widget.onNavigate?.call(4),
                       ),
                     ),
                   ],
@@ -259,7 +269,7 @@ class _HomeContentState extends State<HomeContent> {
                         context, 
                         Icons.report_problem, 
                         'home.report'.tr(),
-                        () => Navigator.pushNamed(context, '/report'),
+                        () => widget.onNavigate?.call(1),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -268,7 +278,7 @@ class _HomeContentState extends State<HomeContent> {
                         context, 
                         Icons.settings, 
                         'home.settings'.tr(),
-                        () => Navigator.pushNamed(context, '/profile/settings'),
+                        () => widget.onNavigate?.call(2),
                       ),
                     ),
                   ],
@@ -301,7 +311,7 @@ class _HomeContentState extends State<HomeContent> {
             children: [
               Icon(
                 icon,
-                color: AppColors.cyanBlue,
+                color: AppColors.brightCyan,
                 size: 32,
               ),
               const SizedBox(height: 8),
@@ -309,7 +319,7 @@ class _HomeContentState extends State<HomeContent> {
                 label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey[800],
+                  color: AppColors.darkNavy,
                   fontWeight: FontWeight.w500,
                 ),
               ),
