@@ -8,6 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:urban_route/schema/database_schema.dart';
 import 'package:urban_route/components/terms_and_cons.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 
 
@@ -83,11 +84,11 @@ class _SignupPageState extends State<SignupPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CupertinoButton(
-                      child: const Text('Cancel'),
+                      child: Text('auth.cancel'.tr()),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     CupertinoButton(
-                      child: const Text('Done'),
+                      child: Text('auth.done'.tr()),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -144,11 +145,11 @@ class _SignupPageState extends State<SignupPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CupertinoButton(
-                      child: const Text('Cancel'),
+                      child: Text('auth.cancel'.tr()),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     CupertinoButton(
-                      child: const Text('Done'),
+                      child: Text('auth.done'.tr()),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -160,7 +161,7 @@ class _SignupPageState extends State<SignupPage> {
                     itemExtent: 32.0,
                     onSelectedItemChanged: (int index) {
                       setState(() {
-                        _selectedLanguage = _languages[index]['code']!;
+                        _selectedLanguage = _languages[index]['name']!;
                       });
                     },
                     children: _languages.map((language) {
@@ -183,13 +184,13 @@ class _SignupPageState extends State<SignupPage> {
     if (!_formKey.currentState!.validate()) return;
     if (_dateOfBirth == null) {
       setState(() {
-        _errorMessage = 'Please select your date of birth';
+        _errorMessage = '';
       });
       return;
     }
     if (!_acceptedTerms) {
       setState(() {
-        _errorMessage = 'Please accept the terms and conditions';
+        _errorMessage = 'auth.accept_terms'.tr();
       });
       return;
     }
@@ -227,7 +228,7 @@ class _SignupPageState extends State<SignupPage> {
         }
       } else {
         setState(() {
-          _errorMessage = 'Sign up failed. Please try again.';
+          _errorMessage = 'auth.sign_up_failed'.tr();
         });
       }
     } catch (error) {
@@ -279,10 +280,10 @@ class _SignupPageState extends State<SignupPage> {
                             Navigator.of(context).pushReplacementNamed('/login');
                           },
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Create Account',
-                            style: TextStyle(
+                            'auth.create_account'.tr(),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -321,7 +322,8 @@ class _SignupPageState extends State<SignupPage> {
                                   child: TextFormField(
                                     controller: _firstNameController,
                                     decoration: InputDecoration(
-                                      labelText: 'First Name',
+                                      labelText: 'auth.first_name'.tr(),
+                                      hintText: 'John',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -332,7 +334,7 @@ class _SignupPageState extends State<SignupPage> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter your first name';
+                                        return 'auth.first_name_required'.tr();
                                       }
                                       return null;
                                     },
@@ -343,7 +345,7 @@ class _SignupPageState extends State<SignupPage> {
                                   child: TextFormField(
                                     controller: _lastNameController,
                                     decoration: InputDecoration(
-                                      labelText: 'Last Name',
+                                      labelText: 'auth.last_name'.tr(),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -354,7 +356,7 @@ class _SignupPageState extends State<SignupPage> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter your last name';
+                                        return 'auth.last_name_required'.tr();
                                       }
                                       return null;
                                     },
@@ -369,7 +371,7 @@ class _SignupPageState extends State<SignupPage> {
                               onTap: () => _selectDate(context),
                               child: InputDecorator(
                                 decoration: InputDecoration(
-                                  labelText: 'Date of Birth',
+                                  labelText: 'auth.date_of_birth'.tr(),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -381,7 +383,7 @@ class _SignupPageState extends State<SignupPage> {
                                 child: Text(
                                   _dateOfBirth != null
                                       ? '${_dateOfBirth!.day}/${_dateOfBirth!.month}/${_dateOfBirth!.year}'
-                                      : 'Select Date',
+                                      : 'auth.select_date'.tr(),
                                 ),
                               ),
                             ),
@@ -393,7 +395,7 @@ class _SignupPageState extends State<SignupPage> {
                                 onTap: () => _selectLanguage(context),
                                 child: InputDecorator(
                                   decoration: InputDecoration(
-                                    labelText: 'Preferred Language',
+                                    labelText: 'auth.preferred_language'.tr(),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -407,7 +409,7 @@ class _SignupPageState extends State<SignupPage> {
                             else
                               DropdownButtonFormField<String>(
                                 decoration: InputDecoration(
-                                  labelText: 'Preferred Language',
+                                  labelText: 'auth.preferred_language'.tr(),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -437,7 +439,7 @@ class _SignupPageState extends State<SignupPage> {
                             TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
-                                labelText: 'Email',
+                                labelText: 'auth.email'.tr(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -449,10 +451,10 @@ class _SignupPageState extends State<SignupPage> {
                               keyboardType: TextInputType.emailAddress,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
+                                  return 'auth.email_required'.tr();
                                 }
                                 if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                                  return 'Please enter a valid email';
+                                  return 'auth.invalid_email'.tr();
                                 }
                                 return null;
                               },
@@ -463,7 +465,7 @@ class _SignupPageState extends State<SignupPage> {
                             TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
-                                labelText: 'Password',
+                                labelText: 'auth.password'.tr(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -475,10 +477,10 @@ class _SignupPageState extends State<SignupPage> {
                               obscureText: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return 'auth.password_required'.tr();
                                 }
                                 if (value.length < 6) {
-                                  return 'Password must be at least 6 characters';
+                                  return 'auth.password_too_short'.tr();
                                 }
                                 return null;
                               },
@@ -489,7 +491,7 @@ class _SignupPageState extends State<SignupPage> {
                             TextFormField(
                               controller: _confirmPasswordController,
                               decoration: InputDecoration(
-                                labelText: 'Re-enter Password',
+                                labelText: 'auth.confirm_password'.tr(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -501,10 +503,10 @@ class _SignupPageState extends State<SignupPage> {
                               obscureText: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please confirm your password';
+                                  return 'auth.confirm_password_required'.tr();
                                 }
                                 if (value != _passwordController.text) {
-                                  return 'Passwords do not match';
+                                  return 'auth.passwords_do_not_match'.tr();
                                 }
                                 return null;
                               },
@@ -532,7 +534,7 @@ class _SignupPageState extends State<SignupPage> {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      'I would like to receive marketing communications',
+                                      'auth.marketing_opt_in'.tr(),
                                       style: TextStyle(
                                         color: Theme.of(context).textTheme.bodyMedium?.color,
                                       ),
@@ -564,7 +566,7 @@ class _SignupPageState extends State<SignupPage> {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      'I agree to allow my data to be used for training purposes',
+                                      'auth.data_is_trainable'.tr(),
                                       style: TextStyle(
                                         color: Theme.of(context).textTheme.bodyMedium?.color,
                                       ),
@@ -603,13 +605,13 @@ class _SignupPageState extends State<SignupPage> {
                                       },
                                       child: RichText(
                                         text: TextSpan(
-                                          text: 'I agree to the ',
+                                          text: 'auth.terms_privacy'.tr(),
                                           style: TextStyle(
                                             color: Theme.of(context).textTheme.bodyMedium?.color,
                                           ),
                                           children: [
                                             TextSpan(
-                                              text: 'Terms of Service',
+                                              text: 'auth.terms_of_service'.tr(),
                                               style: const TextStyle(
                                                 color: AppColors.brightCyan,
                                                 decoration: TextDecoration.underline,
@@ -633,7 +635,7 @@ class _SignupPageState extends State<SignupPage> {
                                               ),
                                             ),
                                             TextSpan(
-                                              text: 'Privacy Policy',
+                                              text: 'auth.privacy_policy'.tr(),
                                               style: const TextStyle(
                                                 color: AppColors.brightCyan,
                                                 decoration: TextDecoration.underline,
@@ -698,9 +700,9 @@ class _SignupPageState extends State<SignupPage> {
                                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                       ),
                                     )
-                                  : const Text(
-                                      'Sign Up',
-                                      style: TextStyle(
+                                  : Text(
+                                      'auth.sign_up'.tr(),
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -718,9 +720,9 @@ class _SignupPageState extends State<SignupPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Already have an account?',
-                          style: TextStyle(color: Colors.white),
+                        Text(
+                          'auth.already_have_account'.tr(),
+                          style: const TextStyle(color: Colors.white),
                         ),
                         TextButton(
                           onPressed: () {
@@ -729,9 +731,9 @@ class _SignupPageState extends State<SignupPage> {
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.white,
                           ),
-                          child: const Text(
-                            'Sign In',
-                            style: TextStyle(
+                          child: Text(
+                            'auth.sign_in'.tr(),
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
                               color: Colors.white,
