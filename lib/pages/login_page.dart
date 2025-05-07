@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       final AuthResponse res = await Supabase.instance.client.auth.signInWithPassword(
-        email: _emailController.text.trim(),
+        email: _emailController.text.trim().toLowerCase(),
         password: _passwordController.text,
       );
       
@@ -235,11 +235,20 @@ class _LoginPageState extends State<LoginPage> {
                                 fillColor: Colors.grey[50],
                               ),
                               keyboardType: TextInputType.emailAddress,
+                              onChanged: (value) {
+                                if (value != value.toLowerCase()) {
+                                  _emailController.text = value.toLowerCase();
+                                  _emailController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: _emailController.text.length),
+                                  );
+                                }
+                              },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';
                                 }
-                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                
+                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.toLowerCase())) {
                                   return 'Please enter a valid email';
                                 }
                                 return null;

@@ -4,7 +4,8 @@
     "app_name": "Ruta Urbana",
     "loading": "Cargando...",
     "error": "Error",
-    "success": "Éxito"
+    "success": "Éxito",
+    "slogan": "Navegación Segura para Viajes Seguros"
   },
   "auth": {
     "login": "Iniciar sesión",

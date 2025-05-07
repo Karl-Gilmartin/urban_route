@@ -4,7 +4,8 @@
     "app_name": "Urban Route",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "slogan": "Safer Navigation for Safer Journeys"
   },
   "auth": {
     "login": "Login",
