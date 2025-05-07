@@ -16,6 +16,7 @@
     "no_account": "¿No tienes una cuenta?",
     "create_account": "Crear Cuenta",
     "forgot_password": "¿Olvidaste tu contraseña?",
+    "preferred_language": "Idioma Preferido",
     "invalid_credentials": "Credenciales inválidas. Por favor revisa tu correo y contraseña.",
     "confirm_password": "Confirmar Contraseña",
     "first_name": "Nombre",

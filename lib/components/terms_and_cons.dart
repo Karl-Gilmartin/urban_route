@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:urban_route/main.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class TermsAndConditionsDialog extends StatelessWidget {
   final VoidCallback? onAccept;
@@ -60,8 +61,8 @@ class TermsAndConditionsDialog extends StatelessWidget {
                   children: [
                     _buildSectionTitle('1. Introduction'),
                     _buildText(
-                      'Welcome to Urban Route. By using our app, you agree to these Terms and Conditions. '
-                      'Please read them carefully before using our services.',
+                      'terms_and_conditions.sub_heading_1'.tr(),
+                      'terms_and_conditions.body_1'.tr(),
                     ),
                   ],
                 ),
@@ -87,12 +88,22 @@ class TermsAndConditionsDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildText(String text) {
+  Widget _buildText(String subheading, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            subheading,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            body,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
       ),
     );
   }
