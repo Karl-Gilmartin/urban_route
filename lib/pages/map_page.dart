@@ -8,6 +8,8 @@ import '../components/report_popup.dart';
 import '../pages/heatmap_page.dart';
 import '../schema/database_schema.dart';
 import '../services/supabase_logging.dart';
+import 'package:urban_route/main.dart';
+
 const String MAPBOX_STYLE = 'mapbox://styles/mapbox/light-v10';
 
 class MapPage extends StatefulWidget {
@@ -170,22 +172,11 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('3D Map View'),
-        backgroundColor: const Color(0xFF1F8DED),
+        backgroundColor: AppColors.deepBlue,
         actions: [
-          // IconButton(
-          //   icon: Icon(_isTracking ? Icons.location_on : Icons.location_off),
-          //   onPressed: _toggleTracking,
-          // ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HeatmapPage()),
-              );
-            },
-          ),
+          // No actions here
         ],
+        automaticallyImplyLeading: false,
       ),
       body: Stack(
         children: [
@@ -257,6 +248,54 @@ class _MapPageState extends State<MapPage> {
                 ),
               ),
             ),
+          // button to go to heatmap page
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.deepBlue, AppColors.brightCyan],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HeatmapPage()),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.multiline_chart, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text('View Heatmap', 
+                            style: TextStyle(
+                              color: Colors.white, 
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            )
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
