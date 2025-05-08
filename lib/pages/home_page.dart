@@ -30,9 +30,9 @@ class _HomePageState extends State<HomePage> {
     _pages = [
       HomeContent(onNavigate: _onItemTapped),
       const ReportPage(),
-      const ProfileSettingsPage(),
       const MapPage(),
       const NavigatePage(),
+      const ProfileSettingsPage(),
     ];
   }
 
@@ -278,7 +278,7 @@ class _HomeContentState extends State<HomeContent> {
                         context, 
                         Icons.settings, 
                         'home.settings'.tr(),
-                        () => widget.onNavigate?.call(2),
+                        () => widget.onNavigate?.call(4),
                       ),
                     ),
                   ],

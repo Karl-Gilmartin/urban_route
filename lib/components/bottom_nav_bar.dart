@@ -37,11 +37,6 @@ class BottomNavBar extends StatelessWidget {
           label: 'Report',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.map_outlined),
           activeIcon: Icon(Icons.map),
           label: 'Map',
@@ -50,6 +45,11 @@ class BottomNavBar extends StatelessWidget {
           icon: Icon(Icons.navigate_next_outlined),
           activeIcon: Icon(Icons.navigate_next),
           label: 'Navigate',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline),
+          activeIcon: Icon(Icons.person),
+          label: 'Profile',
         ),
       ],
     );

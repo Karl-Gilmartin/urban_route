@@ -107,7 +107,7 @@ class _RoutePageState extends State<RoutePage> {
         'route',
         'route-line',
         LineLayerProperties(
-          lineColor: '#00FFFF',
+          lineColor: AppColors.brightCyan.toString(),
           lineWidth: 4.0,
           lineJoin: 'round',
           lineCap: 'round',
@@ -122,7 +122,7 @@ class _RoutePageState extends State<RoutePage> {
           geometry: routePoints.first,
           iconImage: 'marker-15',
           iconSize: 1.5,
-          iconColor: '#00FF00',
+          iconColor: AppColors.brightCyan.toString(),
         ),
       );
 
@@ -134,7 +134,7 @@ class _RoutePageState extends State<RoutePage> {
           geometry: routePoints.last,
           iconImage: 'marker-15',
           iconSize: 1.5,
-          iconColor: '#FF0000',
+          iconColor: AppColors.brightCyan.toString(),
         ),
       );
 
