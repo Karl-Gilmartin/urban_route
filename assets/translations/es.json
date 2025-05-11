@@ -54,7 +54,9 @@
     "cancel": "Cancelar",
     "severity": "Gravedad",
     "date": "Fecha",
-    "not_set": "No establecido"
+    "not_set": "No establecido",
+    "report": "Informe",
+    "report_submitted": "Informe enviado correctamente"
   },
   "map": {
     "map_view": "Vista de Mapa 3D",
@@ -72,5 +74,39 @@
     "settings": "Ajustes",
     "annotate_reports": "Anotar Informes",
     "annotate_description": "Ayuda a mejorar nuestro sistema revisando informes"
+  },
+  "components": {
+    "nav_bar": {
+      "home": "Inicio",
+      "report": "Informar",
+      "map": "Mapa",
+      "navigate": "Navegar",
+      "profile": "Perfil"
+    },
+    "route_summary_card": {
+      "route_summary": "Resumen de Ruta",
+      "start": "Inicio",
+      "destination": "Destino"
+    },
+    "status_popup": {
+      "success": "Éxito",
+      "error": "Error",
+      "warning": "Advertencia",
+      "ok": "OK"
+    },
+    "terms_and_conditions": {
+      "title": "Términos y Condiciones",
+      "accept": "Aceptar",
+      "cancel": "Cancelar",
+      "sub_heading_1": "Bienvenido a Ruta Urbana, al usar nuestra app, aceptas estos Términos y Condiciones.",
+      "body_1": "Por favor, léelos con cuidado antes de usar nuestros servicios."
+    },
+    "walking_route_card": {
+      "walking_route": "Ruta de Caminata",
+      "safer_route": "Ruta de Caminata Segura",
+      "time": "Tiempo",
+      "distance": "Distancia",
+      "safer_route_description": "Esta ruta prioriza la seguridad sobre la velocidad, evitando áreas que puedan ser consideradas inseguras."
+    }
   }
 } 

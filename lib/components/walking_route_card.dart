@@ -127,7 +127,7 @@ class WalkingRouteCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      isSaferRoute ? 'Safer Walking Route' : 'Walking Route',
+                      isSaferRoute ? 'components.walking_route_card.safer_route'.tr() : 'components.walking_route_card.walking_route'.tr(),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -139,17 +139,17 @@ class WalkingRouteCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               RouteInfoRow(
-                label: 'Time',
+                label: 'components.walking_route_card.time'.tr(),
                 value: _formatDuration(time),
               ),
               RouteInfoRow(
-                label: 'Distance',
+                label: 'components.walking_route_card.distance'.tr(),
                 value: _formatDistance(distance),
               ),
               if (isSaferRoute) ...[
                 const SizedBox(height: 8),
                 const Text(
-                  'This route prioritizes safety over speed, avoiding areas with may be deemed unsafe.',
+                  'components.walking_route_card.safer_route_description'.tr(),
                   style: TextStyle(
                     color: Colors.grey,
                     fontStyle: FontStyle.italic,

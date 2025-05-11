@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:urban_route/main.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -25,31 +26,31 @@ class BottomNavBar extends StatelessWidget {
       currentIndex: selectedIndex,
       onTap: onItemTapped,
       showUnselectedLabels: true,
-      items: const [
+      items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined),
           activeIcon: Icon(Icons.home),
-          label: 'Home',
+          label: 'components.nav_bar.home'.tr(),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.report_outlined),
           activeIcon: Icon(Icons.report),
-          label: 'Report',
+          label: 'components.nav_bar.report'.tr(),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.map_outlined),
           activeIcon: Icon(Icons.map),
-          label: 'Map',
+          label: 'components.nav_bar.map'.tr(),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.navigate_next_outlined),
           activeIcon: Icon(Icons.navigate_next),
-          label: 'Navigate',
+          label: 'components.nav_bar.navigate'.tr(),
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
           activeIcon: Icon(Icons.person),
-          label: 'Profile',
+          label: 'components.nav_bar.profile'.tr(),
         ),
       ],
     );

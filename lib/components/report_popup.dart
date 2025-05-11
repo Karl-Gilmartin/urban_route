@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ReportPopup extends StatelessWidget {
   final Map<String, dynamic> report;
@@ -26,7 +27,7 @@ class ReportPopup extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Report Details',
+                'reports.report_details'.tr(),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               if (onClose != null)
@@ -37,16 +38,16 @@ class ReportPopup extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildInfoRow('Report', report['report'] ?? 'No description'),
+          _buildInfoRow('reports.report'.tr(), report['report'] ?? 'reports.report_description'.tr()),
           if (report['report_date'] != null)
-            _buildInfoRow('Date', report['report_date']),
+            _buildInfoRow('reports.date'.tr(), report['report_date']),
           _buildInfoRow(
-            'Severity',
+            'reports.severity'.tr(),
             _getSeverityText(severity),
             valueColor: _getSeverityColor(severity),
           ),
           _buildInfoRow(
-            'Location',
+            'reports.location'.tr(),
             (report['latitude'] != null && report['longitude'] != null)
                 ? '${report['latitude']}, ${report['longitude']}'
                 : 'N/A',
@@ -63,14 +64,14 @@ class ReportPopup extends StatelessWidget {
               ),
               elevation: 2,
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.flag_outlined, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.flag_outlined, size: 18),
+                const SizedBox(width: 8),
                 Text(
-                  'Report this report',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'reports.report_this'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -112,7 +113,7 @@ class ReportPopup extends StatelessWidget {
   }
 
   String _getSeverityText(double severity) {
-    if (severity == -1) return 'Not Set';
+    if (severity == -1) return 'reports.not_set'.tr();
     return severity.toStringAsFixed(2);
   }
 
@@ -121,19 +122,19 @@ class ReportPopup extends StatelessWidget {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Report this report'),
+        title: Text('reports.report_this'.tr()),
         content: TextField(
           controller: reasonController,
-          decoration: const InputDecoration(labelText: 'Reason'),
+          decoration: InputDecoration(labelText: 'reports.reason'.tr()),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('reports.cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, reasonController.text),
-            child: const Text('Submit'),
+            child: Text('reports.submit'.tr()),
           ),
         ],
       ),
@@ -153,11 +154,11 @@ class ReportPopup extends StatelessWidget {
         'reason': reason,
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report submitted!')),
+        SnackBar(content: Text('common.success'.tr() + ': ' + 'reports.report_submitted'.tr())),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit report: $e')),
+        SnackBar(content: Text('common.error'.tr() + ': ' + e.toString())),
       );
     }
   }

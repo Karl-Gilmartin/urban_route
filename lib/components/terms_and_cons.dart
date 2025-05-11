@@ -38,8 +38,8 @@ class TermsAndConditionsDialog extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Terms and Conditions',
-                    style: TextStyle(
+                    'components.terms_and_conditions.title'.tr(),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppColors.deepBlue,
@@ -59,10 +59,10 @@ class TermsAndConditionsDialog extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle('1. Introduction'),
+                    _buildSectionTitle('components.terms_and_conditions.sub_heading_1'.tr()),
                     _buildText(
-                      'terms_and_conditions.sub_heading_1'.tr(),
-                      'terms_and_conditions.body_1'.tr(),
+                      'components.terms_and_conditions.sub_heading_1'.tr(),
+                      'components.terms_and_conditions.body_1'.tr(),
                     ),
                   ],
                 ),

@@ -50,80 +50,215 @@ class _ReportAnnotationCardState extends State<ReportAnnotationCard> {
       reportText = 'Error loading content'.tr();
     }
     
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Report #$reportId'.tr(),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Submitted: $submittedAt'.tr()),
-            const SizedBox(height: 16),
-            Text(
-              'Report Content:'.tr(),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(4.0),
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.92),
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 12.0),
+          elevation: 4,
+          shadowColor: Colors.black26,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header section with gradient
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.cyanBlue, AppColors.brightCyan],
+                  ),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(10),
+                      child: const Icon(
+                        Icons.assignment,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Report #$reportId'.tr(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Submitted: $submittedAt'.tr(),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Text(reportText),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Severity Rating (0-5):'.tr(),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: Slider(
-                    value: currentSeverity,
-                    min: 0,
-                    max: 5,
-                    divisions: 5,
-                    label: currentSeverity.round().toString(),
-                    onChanged: (double value) {
-                      setState(() {
-                        currentSeverity = value;
-                      });
-                    },
-                  ),
+              
+              // Report content section
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.message, color: AppColors.deepBlue, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Report Content:'.tr(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            color: AppColors.deepBlue,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12.0),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Text(
+                        reportText,
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Severity rating section
+                    Row(
+                      children: [
+                        Icon(Icons.warning_amber, color: AppColors.deepBlue, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Severity Rating:'.tr(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.deepBlue,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.brightCyan,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            '${currentSeverity.round()}/5',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.brightCyan,
+                        inactiveTrackColor: Colors.grey[300],
+                        thumbColor: AppColors.brightCyan,
+                        overlayColor: AppColors.brightCyan.withOpacity(0.2),
+                        valueIndicatorColor: AppColors.deepBlue,
+                        valueIndicatorTextStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: Slider(
+                        value: currentSeverity,
+                        min: 0,
+                        max: 5,
+                        divisions: 5,
+                        label: currentSeverity.round().toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            currentSeverity = value;
+                          });
+                        },
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Action button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          int id = -1;
+                          try {
+                            id = int.parse(reportId.toString());
+                            widget.onSubmitAnnotation(id, currentSeverity);
+                          } catch (e) {
+                            print('Error parsing report ID: $e');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.brightCyan,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.save, color: Colors.white),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Save Annotation'.tr(), 
+                              style: TextStyle(
+                                color: Colors.white, 
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(currentSeverity.round().toString()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    int id = -1;
-                    try {
-                      id = int.parse(reportId.toString());
-                      widget.onSubmitAnnotation(id, currentSeverity);
-                    } catch (e) {
-                      print('Error parsing report ID: $e');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.cyanBlue,
-                  ),
-                  child: Text('Save Annotation'.tr(), style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

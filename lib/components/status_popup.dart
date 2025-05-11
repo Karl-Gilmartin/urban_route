@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:urban_route/main.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 enum StatusType {
   success,
@@ -20,19 +21,20 @@ class StatusPopup extends StatelessWidget {
     required this.type,
     String? title,
     required this.message,
-    this.buttonText = 'OK',
+    String? buttonText,
     required this.onButtonPressed,
     this.buttonColor,
-  }) : title = title ?? _getDefaultTitle(type);
+  }) : title = title ?? _getDefaultTitle(type),
+       buttonText = buttonText ?? 'components.status_popup.ok'.tr();
 
   static String _getDefaultTitle(StatusType type) {
     switch (type) {
       case StatusType.success:
-        return 'Success!';
+        return 'components.status_popup.success'.tr();
       case StatusType.error:
-        return 'Error';
+        return 'components.status_popup.error'.tr();
       case StatusType.warning:
-        return 'Warning';
+        return 'components.status_popup.warning'.tr();
     }
   }
 
@@ -73,7 +75,7 @@ class StatusPopup extends StatelessWidget {
     required BuildContext context,
     String? title,
     required String message,
-    String buttonText = 'OK',
+    String? buttonText,
     required VoidCallback onButtonPressed,
     Color? buttonColor,
   }) {
@@ -82,7 +84,7 @@ class StatusPopup extends StatelessWidget {
       type: StatusType.success,
       title: title,
       message: message,
-      buttonText: buttonText,
+      buttonText: buttonText ?? 'components.status_popup.ok'.tr(),
       onButtonPressed: onButtonPressed,
       buttonColor: buttonColor,
     );
@@ -92,7 +94,7 @@ class StatusPopup extends StatelessWidget {
     required BuildContext context,
     String? title,
     required String message,
-    String buttonText = 'OK',
+    String? buttonText,
     required VoidCallback onButtonPressed,
     Color? buttonColor,
   }) {
@@ -101,7 +103,7 @@ class StatusPopup extends StatelessWidget {
       type: StatusType.error,
       title: title,
       message: message,
-      buttonText: buttonText,
+      buttonText: buttonText ?? 'components.status_popup.ok'.tr(),
       onButtonPressed: onButtonPressed,
       buttonColor: buttonColor,
     );
@@ -111,7 +113,7 @@ class StatusPopup extends StatelessWidget {
     required BuildContext context,
     String? title,
     required String message,
-    String buttonText = 'OK',
+    String? buttonText,
     required VoidCallback onButtonPressed,
     Color? buttonColor,
   }) {
@@ -120,7 +122,7 @@ class StatusPopup extends StatelessWidget {
       type: StatusType.warning,
       title: title,
       message: message,
-      buttonText: buttonText,
+      buttonText: buttonText ?? 'components.status_popup.ok'.tr(),
       onButtonPressed: onButtonPressed,
       buttonColor: buttonColor,
     );
@@ -131,7 +133,7 @@ class StatusPopup extends StatelessWidget {
     required StatusType type,
     String? title,
     required String message,
-    String buttonText = 'OK',
+    String? buttonText,
     required VoidCallback onButtonPressed,
     Color? buttonColor,
   }) {
@@ -143,7 +145,7 @@ class StatusPopup extends StatelessWidget {
           type: type,
           title: title,
           message: message,
-          buttonText: buttonText,
+          buttonText: buttonText ?? 'components.status_popup.ok'.tr(),
           onButtonPressed: onButtonPressed,
           buttonColor: buttonColor,
         );

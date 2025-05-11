@@ -54,7 +54,9 @@
     "cancel": "Cancel",
     "severity": "Severity",
     "date": "Date",
-    "not_set": "Not Set"
+    "not_set": "Not Set",
+    "report": "Report",
+    "report_submitted": "Report submitted successfully"
   },
   "map": {
     "map_view": "3D Map View",
@@ -73,11 +75,38 @@
     "annotate_reports": "Annotate Reports",
     "annotate_description": "Help improve our system by reviewing reports"
   },
-  "terms_and_conditions": {
-    "title": "Terms and Conditions",
-    "accept": "Accept",
-    "cancel": "Cancel",
-    "sub_heading_1": "Welcome to Urban Route, by using our app, you agree to these Terms and Conditions.",
-    "body_1": "Please read them carefully before using our services."
+  "components": {
+    "nav_bar": {
+      "home": "Home",
+      "report": "Report",
+      "map": "Map",
+      "navigate": "Navigate",
+      "profile": "Profile"
+    },
+    "route_summary_card": {
+      "route_summary": "Route Summary",
+      "start": "Start",
+      "destination": "Destination"
+    },
+    "status_popup": {
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "ok": "OK"
+    },
+    "terms_and_conditions": {
+      "title": "Terms and Conditions",
+      "accept": "Accept",
+      "cancel": "Cancel",
+      "sub_heading_1": "Welcome to Urban Route, by using our app, you agree to these Terms and Conditions.",
+      "body_1": "Please read them carefully before using our services."
+    },
+    "walking_route_card": {
+      "walking_route": "Walking Route",
+      "safer_route": "Safer Walking Route",
+      "time": "Time",
+      "distance": "Distance",
+      "safer_route_description": "This route prioritizes safety over speed, avoiding areas with may be deemed unsafe."
+    }
   }
 } 
